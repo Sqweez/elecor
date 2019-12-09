@@ -25,7 +25,7 @@ class OrderResource extends JsonResource
             'service' => $this->service->name,
             'answer' => $this->answer,
             'date' => Carbon::parse($this->created_at)->format('d.m.Y'),
-            'is_worked' => $this->is_worked,
+            'is_worked' => !!$this->is_worked,
             'comment' => $this->comment,
             'phone' => $this->phone,
             'client_comment' => $this->client_comment
