@@ -1,0 +1,187 @@
+<template>
+    <div>
+        <div class="d-flex justify-content-between">
+            <v-btn color="primary" class="button-add">
+                Экспорт данных
+                <v-icon>mdi-file-excel-box</v-icon>
+            </v-btn>
+            <v-btn color="primary" @click="addModal = true">
+                Добавить акцию
+                <v-icon>mdi-plus</v-icon>
+            </v-btn>
+        </div>
+        <v-spacer></v-spacer>
+        <v-spacer></v-spacer>
+        <v-text-field
+            v-model="search"
+            clearable
+            append-icon="mdi-account-search"
+            label="Поиск"
+            class="mb-2"
+            single-line
+            hide-details
+        ></v-text-field>
+        <v-data-table
+            v-if="stocks"
+            no-results-text="Нет результатов"
+            no-data-text="Нет данных"
+            :footer-props="{
+                'items-per-page-options': [10, 15, {text: 'Все', value: -1}],
+                'items-per-page-text': 'Записей на странице',
+            }"
+            :headers="headers"
+            :search="search"
+            :items="stocks">
+            <template v-slot:item.action="{item}">
+                <v-btn icon @click="showHideModal(item)">
+                    <v-icon v-if="!item.is_visible">mdi-eye</v-icon>
+                    <v-icon v-else>mdi-eye-off</v-icon>
+                </v-btn>
+                <v-btn icon @click="showEditModal(item)">
+                    <v-icon>mdi-pencil-outline</v-icon>
+                </v-btn>
+                <v-btn icon @click="showDeleteModal(item)">
+                    <v-icon>mdi-delete</v-icon>
+                </v-btn>
+            </template>
+            <template slot="footer.page-text" slot-scope="{pageStart, pageStop, itemsLength}">
+                {{ pageStart }}-{{ pageStop }} из {{ itemsLength }}
+            </template>
+        </v-data-table>
+        <ConfirmationModal
+            message="Вы действительно хотите удалить выбранную акцию?"
+            :state="deleteModal"
+            ok-message="Удалить"
+            v-on:cancel="closeDeleteModal"
+            v-on:confirm="deleteStock"/>
+        <ConfirmationModal
+            ok-message="Скрыть"
+            :message="modalMessage"
+            :state="hideModal"
+            v-on:cancel="closeHideModal"
+            v-on:confirm="changeStockStatus"/>
+        <AddNewsModal
+            :key="modalKey"
+            title="Добавление акции"
+            v-on:onClose="closeAddModal"
+            v-on:onSave="stockCreated"
+            :state="addModal"/>
+        <AddNewsModal
+            :key="modalKey + 1"
+            v-if="editModal"
+            title="Редактирование акции"
+            v-on:onClose="closeEditModal"
+            v-on:onSave="stockEdited"
+            ok-button="Сохранить"
+            :currentStock="currentStock"
+            :edit-mode="true"
+            :state="editModal"/>
+    </div>
+</template>
+
+<script>
+    import showToast from "../../../utils/Toast";
+    import AddNewsModal from "../../Modals/AddNewsModal/AddNewsModal";
+    import ConfirmationModal from "../../Modals/ConfirmationModal/ConfirmationModal";
+    import ACTIONS from "../../../store/actions";
+    export default {
+        components: {
+            ConfirmationModal, AddNewsModal
+        },
+        computed: {
+            stocks() {
+                return this.$store.getters.stocks;
+            }
+        },
+        data: () => ({
+            modalKey: 0,
+            currentStock: null,
+            modalMessage: '',
+            deleteModal: false,
+            hideModal: false,
+            addModal: false,
+            editModal: false,
+            headers: [
+                {
+                    text: 'Наименование',
+                    value: 'title',
+                    sortable: false,
+                },
+                {
+                    text: 'Дата создания',
+                    value: 'date',
+                    sortable: false
+                },
+                {
+                    text: 'Действие',
+                    value: 'action',
+                    sortable: false
+                }
+            ],
+            search: '',
+        }),
+        methods: {
+            showDeleteModal(e) {
+                this.currentStock = e;
+                this.deleteModal = true;
+            },
+            showHideModal(e) {
+                this.currentStock = e;
+                if (this.currentStock.is_visible) {
+                    this.modalMessage = 'Вы действительно хотите скрыть данную акцию?';
+                } else {
+                    this.modalMessage = 'Вы действительно хотите показать данную акцию?';
+                }
+                this.hideModal = true;
+            },
+            showEditModal(e) {
+                this.currentStock = e;
+                this.editModal = true;
+            },
+            closeDeleteModal() {
+                this.deleteModal = false;
+            },
+            closeHideModal() {
+                this.hideModal = false;
+            },
+            closeAddModal() {
+                this.addModal = false;
+                this.modalKey++;
+            },
+            closeEditModal() {
+                this.editModal = false;
+                this.modalKey++;
+            },
+            stockCreated() {
+                this.addModal = false;
+                showToast('Акция успешно добавлена!');
+                this.modalKey++;
+                this.currentStock = null;
+            },
+            stockEdited() {
+                this.editModal = false;
+                showToast('Акция успешно обновлена!');
+                this.modalKey++;
+                this.currentStock = null;
+            },
+            async deleteStock() {
+                await this.$store.dispatch(ACTIONS.DELETE_STOCK, this.currentStock.id);
+                this.currentStock = null;
+                this.deleteModal = false;
+            },
+            async changeStockStatus() {
+                this.hideModal = false;
+                await this.$store.dispatch(ACTIONS.CHANGE_STOCK_STATUS, {
+                    id: this.currentStock.id,
+                    is_visible: !this.currentStock.is_visible
+                });
+                showToast('Акция успешно обновлена!');
+                this.currentStock = null;
+            }
+        },
+    }
+</script>
+
+<style scoped>
+
+</style>

@@ -1,0 +1,36 @@
+@import "normalize";
+@import "~vuetify/dist/vuetify.min.css";
+@import "~bootstrap-4-grid";
+@import "grids";
+.form-control {
+    margin: 10px;
+    color: rgba(0,0,0,.87);
+    border-bottom: 1px solid #b2b2b2;
+    padding: 8px 0;
+    font-size: 16px;
+    transition: all 0.6s linear;
+
+    &:focus {
+        outline: none;
+        border-bottom: 1px solid #1976d2;
+    }
+}
+.v-data-table th {
+    font-size: 20px!important;
+}
+
+.v-data-table tbody td {
+    font-size: 16px;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition-duration: 0.3s;
+    transition-property: opacity;
+    transition-timing-function: ease;
+}
+
+.fade-enter,
+.fade-leave-active {
+    opacity: 0;
+}

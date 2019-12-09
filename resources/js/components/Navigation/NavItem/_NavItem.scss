@@ -1,0 +1,51 @@
+@import "@/styles/colors";
+.nav-item {
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    padding: 0 35px;
+    display: flex;
+    position: relative;
+    height: 100%;
+    box-sizing: border-box;
+
+    v-icon {
+        transition: all .7s ease-out;
+    }
+
+    .rotate {
+        transform: rotate(180deg);
+    }
+
+    span {
+        margin-left: 10px;
+    }
+
+    .dropdown {
+        z-index: 1;
+        width: 100%;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        color: #000;
+        border: 1px solid #dee2e6;
+        background-color: #fff;
+        box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.13);
+
+        li {
+            padding: 15px 10px;
+            box-sizing: content-box;
+            transition: all .3s ease-out;
+            white-space: nowrap;
+            border-bottom: 1px solid #ededed;
+            border-left: 8px solid transparent;
+
+            &:hover {
+                background-color: #e2e2e2;
+                border-left: 8px solid #212121;
+            }
+        }
+    }
+}
