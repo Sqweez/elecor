@@ -162,10 +162,21 @@ class ClientController extends Controller {
         }
     }
 
-    public function push(Client $client, Request $request) {
-        $pushMessage = $request->all();
-        $pushToken = $this->getPushToken($client);
+    public function push(Request $request) {
+        $pushMessage = $request->except(['push_token']);
+        $isGuest = $request->get('isGuest');
+        $push_token = $request->get('push_token');
+        $client_id = $request->get('client_id');
+        $pushToken = null;
+        if (!$isGuest) {
+            $pushToken = $this->getPushToken($client_id);
+        } else if ($push_token) {
+            $pushToken = $push_token;
+        }
         $this->sendPush($pushMessage, $pushToken);
+        if ($isGuest) {
+            return;
+        }
         return $this->storeMessage($pushMessage);
     }
 
@@ -218,8 +229,8 @@ class ClientController extends Controller {
         return $response;
     }
 
-    private function getPushToken(Client $client) {
-        $push_token = $client['push_token'];
+    private function getPushToken($id) {
+        $push_token = Client::find($id)['push_token'];
         return $push_token;
     }
 

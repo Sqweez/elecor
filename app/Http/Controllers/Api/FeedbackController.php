@@ -17,7 +17,7 @@ class FeedbackController extends Controller
      */
     public function index()
     {
-        return FeedbackResource::collection(Feedback::all());
+        return FeedbackResource::collection(Feedback::all()->sortByDesc('created_at'));
     }
 
     /**

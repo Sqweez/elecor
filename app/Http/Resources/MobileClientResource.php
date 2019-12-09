@@ -19,6 +19,7 @@ class MobileClientResource extends JsonResource
             'id' => $this->id,
             'push_token' => $this->push_token,
             'name' => $this->name,
+            'phone' => $this->phones[0]->phone ?? '',
             'connections' => MobileConnectionResource::collection($this->connections->except(['created_at', 'updated_at'])),
             'transactions' => MobileTransactionResource::collection($this->transactions->where('is_visible', true)->sortByDesc('created_at')),
         ];

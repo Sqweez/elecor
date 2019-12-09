@@ -29,7 +29,7 @@
             <template v-slot:item.client="{item}">
                 <div class="d-flex justify-content-between align-items-center">
                     <span>{{ item.client }}</span>
-                    <v-btn icon @click="showClientPage(item)">
+                    <v-btn icon @click="showClientPage(item)" v-if="item.client_id">
                         <v-icon>mdi-eye</v-icon>
                     </v-btn>
                 </div>
@@ -40,7 +40,7 @@
                     <h4 class="green--text">Отработано</h4>
                 </div>
                 <div v-else>
-                    <v-btn color="primary" @click="showMessageModal(item)">Ответить
+                    <v-btn color="primary" @click="showMessageModal(item)" v-if="item.client_id || item.push_token">Ответить
                         <v-icon>mdi-message</v-icon>
                     </v-btn>
                     <v-btn color="success" @click="showCommentModal(item)">Отработано
@@ -97,7 +97,17 @@
                 this.$router.push({name: 'clients.show', params: {userId: item.client_id}});
             },
             async sendMessage(e) {
-                await sendPushToClient(this.currentOrder.client_id, e);
+                const push = {};
+                if (this.currentOrder.client_id) {
+                    push.client_id = this.currentOrder.client_id;
+                } else {
+                    push.push_token = this.currentOrder.push_token;
+                    push.isGuest = true;
+                }
+
+                const _push = {...push, ...e};
+
+                await sendPushToClient(_push);
                 this.currentOrder = null;
                 this.messageModal = false;
                 showToast('Сообщение отправлено!');

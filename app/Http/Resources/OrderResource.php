@@ -17,9 +17,11 @@ class OrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'client' => $this->client->name,
+            'client' => $this->client_name,
+            'push_token' => $this->push_token,
             'client_id' => $this->client_id,
             'feedback' => $this->feedback,
+            'service_id' => $this->service_id,
             'service' => $this->service->name,
             'answer' => $this->answer,
             'date' => Carbon::parse($this->created_at)->format('d.m.Y'),

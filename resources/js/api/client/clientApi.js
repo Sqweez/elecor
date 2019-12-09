@@ -55,7 +55,7 @@ export async function createParsedClients(clients) {
 }
 
 export async function sendPushToClient(push) {
-    const response = await axios.post(`/api/clients/push/${push.client_id}`, push);
+    const response = await axios.post(`/api/clients/push`, push);
     return response.data;
 }
 

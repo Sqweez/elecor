@@ -21,7 +21,7 @@ Route::prefix('clients')->group(function () {
     Route::put('push/{client}', 'Api\ClientController@push');
     Route::put('pushes', 'Api\ClientController@pushes');
     Route::patch('update/{client}', 'Api\ClientController@updateClient');
-    Route::post('push/{client}', 'Api\ClientController@push');
+    Route::post('push', 'Api\ClientController@push');
     Route::post('pushes', 'Api\ClientController@pushes');
     Route::get('parseClients', 'Api\ClientController@parseClients');
     //@TODO УБРАТЬ!

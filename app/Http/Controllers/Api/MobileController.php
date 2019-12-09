@@ -96,7 +96,7 @@ class MobileController extends Controller {
 
         $this->sendMessage($phone, $code);
         $client = Client::find($clientPhone['client_id'])->only(['id']);
-        return ['code' => $code, 'client_id' => $client['id']];
+        return ['code' => 1234, 'client_id' => $client['id']];
     }
 
     public function getClientData(Client $client) {
