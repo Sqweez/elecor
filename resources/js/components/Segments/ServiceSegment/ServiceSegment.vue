@@ -97,9 +97,6 @@
                 return this.$store.getters.getMobileServices;
             },
         },
-        async mounted() {
-            await this.$store.dispatch(ACTIONS.GET_MOBILE_SERVICES);
-        },
         methods: {
             additionalServices(id) {
                 return this.services.filter(i => i.main_id === id);

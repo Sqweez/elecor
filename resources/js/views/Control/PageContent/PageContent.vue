@@ -9,10 +9,14 @@
                 <v-btn style="width: 300px;" depressed :color="currentSegment === 'services' ? 'primary' : ''"
                        @click="currentSegment = 'services'">Услуги
                 </v-btn>
+                <v-btn style="width: 300px;" depressed :color="currentSegment === 'banners' ? 'primary' : ''"
+                       @click="currentSegment = 'banners'">Баннеры
+                </v-btn>
             </div>
             <div class="p-4">
                 <ContactsSegment v-if="currentSegment === 'contacts'"/>
                 <ServiceSegment v-if="currentSegment === 'services'"/>
+                <StocksSegment v-if="currentSegment === 'banners'"/>
             </div>
         </v-card-text>
     </v-card>
@@ -21,13 +25,19 @@
 <script>
     import ContactsSegment from "../../../components/Segments/ContactsSegment/ContactsSegment";
     import ServiceSegment from "../../../components/Segments/ServiceSegment/ServiceSegment";
+    import StocksSegment from "../../../components/Control/StocksSegment/StocksSegment";
+    import ACTIONS from "../../../store/actions";
     export default {
         components: {
-          ContactsSegment, ServiceSegment
+          ContactsSegment, ServiceSegment, StocksSegment
         },
         data: () => ({
             currentSegment: 'contacts',
-        })
+        }),
+        async mounted() {
+            await this.$store.dispatch(ACTIONS.GET_STOCKS);
+            await this.$store.dispatch(ACTIONS.GET_MOBILE_SERVICES);
+        }
     }
 </script>
 

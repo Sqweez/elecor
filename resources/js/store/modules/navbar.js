@@ -33,10 +33,10 @@ const navbarModule = {
                         title: 'Содержание страниц',
                         url: '/page-content',
                     },
-                    {
+                   /* {
                         title: 'Акции',
                         url: '/news',
-                    }
+                    }*/
                 ]
             },
             {

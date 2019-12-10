@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MobileStocksResource;
+use App\Http\Resources\OrderResource;
 use App\Http\Resources\StockResource;
 use App\Stock;
 use Illuminate\Http\Request;
@@ -57,13 +58,13 @@ class StockController extends Controller
      *
      * @param Stock $stock
      * @param \Illuminate\Http\Request $request
-     * @return Stock
+     * @return StockResource
      */
     public function update(Stock $stock, Request $request)
     {
         $data = $request->all();
         $stock->update($data);
-        return $stock;
+        return new StockResource($stock);
     }
 
     /**

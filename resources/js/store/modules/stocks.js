@@ -10,7 +10,8 @@ const stockModule = {
     getters: {
         [GETTERS.STOCKS] (state) {
             return state.stocks;
-        }
+        },
+        stock: state => id => state.stocks.find(s => s.id === id)
     },
     mutations: {
         [MUTATIONS.SET_STOCKS] (state, payload) {
@@ -19,9 +20,8 @@ const stockModule = {
         [MUTATIONS.EDIT_STOCK] (state, payload) {
             state.stocks = state.stocks.map(s => {
                 if (s.id === payload.id) {
-                    s.title = payload.title;
-                    s.body = payload.body;
-                    s.image = payload.image;
+                    console.log(payload);
+                    s = payload;
                 }
                 return s;
             })
@@ -56,8 +56,8 @@ const stockModule = {
             await commit(MUTATIONS.DELETE_STOCK, payload);
         },
         async [ACTIONS.EDIT_STOCK] ({commit}, payload) {
-            await editStock(payload);
-            await commit(MUTATIONS.EDIT_STOCK, payload);
+            const response = await editStock(payload);
+            await commit(MUTATIONS.EDIT_STOCK, response);
         },
         async [ACTIONS.CHANGE_STOCK_STATUS] ({commit}, payload) {
             await changeStatus(payload);

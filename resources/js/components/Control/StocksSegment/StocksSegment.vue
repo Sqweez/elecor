@@ -6,7 +6,7 @@
                 <v-icon>mdi-file-excel-box</v-icon>
             </v-btn>
             <v-btn color="primary" @click="addModal = true">
-                Добавить акцию
+                Добавить баннер
                 <v-icon>mdi-plus</v-icon>
             </v-btn>
         </div>
@@ -32,6 +32,15 @@
             :headers="headers"
             :search="search"
             :items="stocks">
+            <template v-slot:item.image="{item}">
+                <img
+                    :src="'../storage/' + item.image"
+                    style="max-width: 200px; height: auto;"
+                    alt="">
+            </template>
+            <template v-slot:item.type="{item}">
+                <span>{{item.service_id === null ? `Акция` : `Баннер: ${item.service}`}}</span>
+            </template>
             <template v-slot:item.action="{item}">
                 <v-btn icon @click="showHideModal(item)">
                     <v-icon v-if="!item.is_visible">mdi-eye</v-icon>
@@ -61,19 +70,16 @@
             v-on:cancel="closeHideModal"
             v-on:confirm="changeStockStatus"/>
         <AddNewsModal
-            :key="modalKey"
-            title="Добавление акции"
+            title="Добавление баннера"
             v-on:onClose="closeAddModal"
             v-on:onSave="stockCreated"
             :state="addModal"/>
         <AddNewsModal
-            :key="modalKey + 1"
-            v-if="editModal"
-            title="Редактирование акции"
+            title="Редактирование баннера"
             v-on:onClose="closeEditModal"
             v-on:onSave="stockEdited"
+            :service-id="editId"
             ok-button="Сохранить"
-            :currentStock="currentStock"
             :edit-mode="true"
             :state="editModal"/>
     </div>
@@ -98,6 +104,7 @@
             currentStock: null,
             modalMessage: '',
             deleteModal: false,
+            editId: null,
             hideModal: false,
             addModal: false,
             editModal: false,
@@ -112,6 +119,18 @@
                     value: 'date',
                     sortable: false
                 },
+                {
+                    text: 'Тип',
+                    value: 'type',
+                    sortable: false
+                },
+                {
+                    text: 'Баннер',
+                    value: 'image',
+                    sortable: false,
+                    align: 'center'
+                },
+
                 {
                     text: 'Действие',
                     value: 'action',
@@ -135,7 +154,7 @@
                 this.hideModal = true;
             },
             showEditModal(e) {
-                this.currentStock = e;
+                this.editId = e.id;
                 this.editModal = true;
             },
             closeDeleteModal() {
@@ -150,7 +169,7 @@
             },
             closeEditModal() {
                 this.editModal = false;
-                this.modalKey++;
+                this.editId = null;
             },
             stockCreated() {
                 this.addModal = false;
@@ -161,8 +180,7 @@
             stockEdited() {
                 this.editModal = false;
                 showToast('Акция успешно обновлена!');
-                this.modalKey++;
-                this.currentStock = null;
+                this.editId = null;
             },
             async deleteStock() {
                 await this.$store.dispatch(ACTIONS.DELETE_STOCK, this.currentStock.id);

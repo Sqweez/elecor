@@ -19,6 +19,7 @@ class MobileStocksResource extends JsonResource {
             'title' => $this->title,
             'body' => $this->body,
             'image' => url('/') . Storage::disk('local')->url($this->image),
+            'service_id' => $this->service->id ?? null
         ];
     }
 }
