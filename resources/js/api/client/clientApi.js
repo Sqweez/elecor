@@ -24,7 +24,7 @@ export async function getClientById(id) {
 }
 
 export async function editClient(user) {
-    const response = await axios.put(`/api/clients/${user.id}`, user);
+    const response = await axios.patch(`/api/clients/${user.id}`, user);
     return response.data;
 }
 
