@@ -67,7 +67,12 @@ const clientsModule = {
     },
     mutations: {
         [MUTATIONS.SET_CLIENTS](state, payload) {
-            state.clients = payload;
+            state.clients = payload.map(c => {
+                c._personalAccounts = c.personal_accounts.join(' ');
+                c._addresses = c.addresses.join(' ');
+                c._trademarks = c.trademarks.join(' ');
+                return c;
+            });
         },
         [MUTATIONS.SET_CLIENT_TYPES](state, payload) {
             state.subjects = payload;
@@ -138,8 +143,8 @@ const clientsModule = {
         },
         async [ACTIONS.CREATE_CLIENT]({commit, dispatch}, client) {
             const response = await createUser(client);
-            console.log(response);
-            await commit(MUTATIONS.ADD_CLIENT, response)
+            await commit(MUTATIONS.ADD_CLIENT, response);
+            return response;
         },
         async [ACTIONS.GET_CLIENT_TYPES]({commit}) {
             const client_types = await getClientTypes();

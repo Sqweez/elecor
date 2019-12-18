@@ -145,8 +145,8 @@
                 v => !!v || 'Требуется ввести контрагента'
             ],
             dateRules: [
-                v => !!v || 'Требуется ввести дату рождения',
-                v => (!moment(v).isAfter(moment()) && !moment(v).isBefore(moment([1900, 0, 1]))) || 'Дата рождения не корректна',
+                /*v => !!v || 'Требуется ввести дату рождения',
+                v => (!moment(v).isAfter(moment()) && !moment(v).isBefore(moment([1900, 0, 1]))) || 'Дата рождения не корректна',*/
             ],
             phoneRules: [
                 v => !!v || 'Требуется ввести телефон'
@@ -197,13 +197,14 @@
             },
             async createUser() {
                 this.loading = true;
+                console.log(this.client);
                 this.client.phones = this.client.phones
                     .filter(phone => !!phone)
                     .map(phone => phone.replaceAll('-', ''));
-                await this.$store.dispatch(ACTIONS.CREATE_CLIENT, this.client);
+                const response = await this.$store.dispatch(ACTIONS.CREATE_CLIENT, this.client);
                 this.clearClient();
                 this.loading = false;
-                this.$emit('onSave')
+                this.$emit('onSave', response)
             },
             clearClient() {
                 this.duplicates = [];

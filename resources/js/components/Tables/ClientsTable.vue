@@ -12,10 +12,6 @@
                     Добавить клиента
                     <v-icon>mdi-account-plus</v-icon>
                 </v-btn>
-                <!--<v-btn color="primary" class="button-add">
-                    Экспорт данных
-                    <v-icon>mdi-file-excel-box</v-icon>
-                </v-btn>-->
                 <v-btn color="success" class="button-add" @click="showImportModal = true">
                     Импорт клиентов
                     <v-icon>mdi-file-excel-box</v-icon>
@@ -38,6 +34,8 @@
                 <v-text-field
                     v-if="allClients"
                     v-model="search"
+                    outlined
+                    solo
                     clearable
                     append-icon="mdi-account-search"
                     label="Поиск клиента"
@@ -125,6 +123,24 @@
                     sortable: false,
                     value: 'name',
                 },
+                {
+                    text: 'лиц счета',
+                    value: '_personalAccounts',
+                    visible: false,
+                    align: ' d-none'
+                },
+                {
+                    text: 'адреса',
+                    value: '_addresses',
+                    visible: false,
+                    align: ' d-none'
+                },
+                {
+                    text: 'торговые наименования',
+                    value: '_trademarks',
+                    visible: false,
+                    align: ' d-none'
+                },
                 {text: 'Лицевой счет', value: 'personalAccount', sortable: false},
                 {text: 'Адрес', value: 'address', sortable: false},
                 {text: 'Торговое наименование', value: 'trademark', sortable: false}
@@ -132,15 +148,15 @@
         }),
         methods: {
             async rowClick(e) {
-                // await this.$store.dispatch(ACTIONS.GET_CLIENT, e.id);
                 await this.$router.push({name: 'clients.show', params: {userId: e.id}})
             },
             closeModal() {
                 this.showAddClientModal = false;
             },
-            saveUser() {
+            async saveUser(e) {
                 this.showAddClientModal = false;
-                showToast('Клиент успешно добавлен!')
+                showToast('Клиент успешно добавлен!');
+                await this.$router.push({name: 'clients.show', params: {userId: e.id}})
             },
             onClientImported() {
                 this.showImportModal = false;

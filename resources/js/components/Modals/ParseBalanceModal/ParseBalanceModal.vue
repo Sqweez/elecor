@@ -24,9 +24,15 @@
                     :headers="headers"
                     :items="clients"
                 >
-                    <template v-slot:item.client="{item}">
-                        <span v-if="!item.client">Контрагент не найден</span>
-                        <span v-else>{{ item.client.name }}</span>
+                    <template v-slot:item.client="{item}" :style="{backgroundColor: (!item.client ? 'red' : 'transparent' ) }">
+                        <td :style="{
+                            backgroundColor: (!item.client ? 'tomato' : '#f5f5f5'),
+                            color: (!item.client ? 'white' : 'black'),
+                            width: '100%'
+                            }">
+                            <span v-if="!item.client">Контрагент не найден</span>
+                            <span v-else>{{ item.client.name }}</span>
+                        </td>
                     </template>
                     <template v-slot:item.account="{item}">
                         <v-text-field v-model="item.account" v-mask="'## ## ##'" @keypress.enter="findClient(item)"></v-text-field>
