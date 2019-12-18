@@ -59,4 +59,9 @@ export async function sendPushToClient(push) {
     return response.data;
 }
 
+export async function getDebts() {
+    const response = await axios.get('/api/clients/debt');
+    return response.data;
+}
+
 

@@ -8,6 +8,7 @@ use App\Connection;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ClientsResource;
 use App\Http\Resources\ConnectionResource;
+use App\Http\Resources\DebtResource;
 use App\Http\Resources\SingleClientResource;
 use App\Message;
 use App\Payment;
@@ -205,7 +206,8 @@ class ClientController extends Controller {
             'app_id' => env('ONE_SIGNAL_APP_ID'),
             'data' => array("foo" => "bar"),
             $key => $segment[$key],
-            'large_icon' =>"ic_launcher_round.png",
+            'small_icon' => "ic_stat_onesignal_default.png",
+            'large_icon' =>"ic_stat_onesignal_default.png",
             'contents' => $content,
             'headings' => $heading,
             'android_group' => 'group'
@@ -321,6 +323,27 @@ class ClientController extends Controller {
 
             }
         }
+
+    }
+
+    public function getDebt() {
+        $debts = DebtResource::collection(Client::all())->toArray(Client::all());
+        $total_debt = 0;
+        $debts = array_values(array_filter($debts, function ($arr) {
+            return $arr['id'] > -1;
+        }));
+        foreach ($debts as $debt) {
+            foreach ($debt['connections'] as $connection) {
+                $total_debt += $connection['debt'];
+            }
+        }
+
+        $data = [
+            'debts' => $debts,
+            'total_debt' => $total_debt
+        ];
+
+        return $data;
 
     }
 

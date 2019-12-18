@@ -8,12 +8,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\MessageResource;
 use App\Http\Resources\MobileClientResource;
 use App\Http\Resources\MobileServicesResource;
-use App\Http\Resources\SingleClientResource;
 use App\Message;
 use App\MobileService;
 use App\Phone;
 use Illuminate\Http\Request;
-use Mobizon\MobizonApi;
 
 class MobileController extends Controller {
     /**
@@ -115,9 +113,9 @@ class MobileController extends Controller {
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);//для возврата результата в виде строки, вместо прямого вывода в браузер
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);//для возврата результата в виде строки, вместо прямого вывода в браузер
         $returned = curl_exec($ch);
-        curl_close ($ch);
+        curl_close($ch);
 
         return $returned;
 
@@ -163,5 +161,50 @@ class MobileController extends Controller {
         $data = $request->all();
         $service = MobileService::find($id);
         $service->update($data);
+    }
+
+    public function pay(Request $request) {
+        $merchant_id = 514216;
+        $secret_word = 'Vz4roXY8y3Ccxovs';
+
+        $price = $request->get('price');
+        $fullname = $request->get('name');
+        $personal_id = $request->get('personal_id');
+        $service_name = $request->get('service');
+
+       /* $price = 300;
+        $fullname = 'Катеринин Александр Андреевич';
+        $personal_id = '00 00 01';
+        $service_name = 'Охранно-тревожная сигнализация';*/
+
+
+        // описание заказа
+        $description = 'Оплата услуги "' . $service_name . '" для ' . $fullname . ' (Лицевой счет: ' . $personal_id . ')';
+
+        $arrReq = array('pg_merchant_id' => $merchant_id, 'pg_amount' => $price, 'pg_salt' => mt_rand(21, 43433), 'pg_order_id' => 1345566, 'pg_description' => $description, 'pg_encoding' => 'UTF-8', 'pg_currency' => "KZT", //'pg_user_ip'        => $_SERVER['REMOTE_ADDR'],
+            'pg_lifetime' => 86400, //'pg_request_method' => 'GET',
+            'pg_success_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=success', 'pg_failure_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=error',);
+
+        // $arrReq['pg_testing_mode'] = 1;
+
+        $arrReq['pg_sig'] = $this->makes('payment.php', $arrReq, $secret_word);
+
+        $query = http_build_query($arrReq);
+
+        $url = 'https://api.paybox.money/payment.php?' . $query;
+
+        return $url;
+
+    }
+
+    private function makes($scriptName, $arrReq, $secret_word) {
+        ksort($arrReq);
+
+        array_unshift($arrReq, $scriptName);
+        array_push($arrReq, $secret_word);
+
+        $sig = implode(';', $arrReq);
+
+        return md5($sig);
     }
 }

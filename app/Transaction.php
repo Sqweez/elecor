@@ -10,4 +10,9 @@ class Transaction extends Model {
     public function sales() {
         return $this->belongsTo('App\Sale', 'sale_id');
     }
+
+
+    public function client() {
+
+    }
 }

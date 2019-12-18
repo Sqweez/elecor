@@ -16,6 +16,7 @@ Route::get('test', 'Api\ClientController@test');
 
 
 Route::prefix('clients')->group(function () {
+    Route::get('debt', 'Api\ClientController@getDebt');
     Route::get('types', 'Api\ClientController@getTypes');
     Route::post('create_clients', 'Api\ClientController@createClients');
     Route::put('push/{client}', 'Api\ClientController@push');
@@ -73,6 +74,7 @@ Route::prefix('mobile')->group(function () {
     Route::post('services', 'Api\MobileController@createService');
     Route::delete('services/{service}', 'Api\MobileController@deleteService');
     Route::patch('services/{service}', 'Api\MobileController@editService');
+    Route::post('pay', 'Api\MobileController@pay');
 });
 
 
