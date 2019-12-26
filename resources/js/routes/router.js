@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from "vue-router";
 import routes from "./routes";
-import ACTIONS from "../store/actions";
+import store from "../store";
 
 Vue.use(VueRouter);
 
@@ -14,8 +14,13 @@ const Router = new VueRouter({
     }
 });
 
-Router.beforeEach(async (to, from, next) => {
-    // await this.$store.dispatch(ACTIONS.GET_CLIENTS);
+Router.beforeEach((to, from, next) => {
+
+
+    if (!store.getters.hasToken && to.name !== 'Login') {
+        next('/login');
+        return;
+    }
     next();
 });
 

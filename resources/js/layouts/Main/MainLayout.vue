@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="token">
         <Navbar/>
         <div class="container">
             <router-view></router-view>
@@ -12,8 +12,13 @@
     import ACTIONS from "../../store/actions";
 
     export default {
+        data: () => ({
+            token: localStorage.getItem('token') || ''
+        }),
         async created() {
-          await this.$store.dispatch(ACTIONS.INIT);
+            if (this.$store.getters.isLoggedIn) {
+                await this.$store.dispatch(ACTIONS.INIT);
+            }
         },
         components: {
             Navbar

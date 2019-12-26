@@ -35,7 +35,7 @@
                              @click="showUserDropDown = !showUserDropDown"
                                >
                             <div class="user-info">
-                                <div class="user-name">Катеринин Александр</div>
+                                <div class="user-name">{{ user.name }}</div>
                                 <div class="user-role">Администратор</div>
                             </div>
                             <v-avatar size="40" color="primary">
@@ -48,7 +48,7 @@
                                     <v-icon>mdi-settings-outline</v-icon>
                                     <span>Настройки</span>
                                 </li>
-                                <li class="dropdown-item" v-ripple @click="$router.push('/login')">
+                                <li class="dropdown-item" v-ripple @click="logout">
                                     <v-icon>mdi-logout</v-icon>
                                     <span>Выход</span>
                                 </li>
@@ -87,6 +87,9 @@
         },
         computed: {
             ...mapGetters(['menuItems']),
+            user() {
+                return this.$store.getters.user;
+            }
         },
         async created() {
             this.notificationsCount = await getCount();
@@ -112,6 +115,10 @@
             settingsNavigate() {
                 this.showUserDropDown = false;
                 showToast('', 'Пункт еще не реализован!', 'warning');
+            },
+            async logout() {
+                await this.$store.dispatch('logout');
+                await this.$router.push('/login');
             }
         }
     }

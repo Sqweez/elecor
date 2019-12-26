@@ -8,6 +8,7 @@ import orderModule from "./modules/orders";
 import feedbackModule from "./modules/feedback";
 import stockModule from "./modules/stocks";
 import mobileServiceModule from './modules/mobile_services'
+import userModule from "./modules/user";
 Vue.use(Vuex);
 
 const store = new Store({
@@ -27,7 +28,8 @@ const store = new Store({
         orderModule: orderModule,
         feedbackModule: feedbackModule,
         stocksModule: stockModule,
-        mobileServiceModule: mobileServiceModule
+        mobileServiceModule: mobileServiceModule,
+        userModule: userModule
     }
 });
 

@@ -3,9 +3,10 @@
 namespace App\Exceptions;
 
 use Exception;
-use http\Env\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -51,6 +52,10 @@ class Handler extends ExceptionHandler
 
         if ($exception instanceof ModelNotFoundException) {
             return response()->json(['message' => 'Not Found!'], 404);
+        }
+
+        if($exception instanceof HttpException && $exception->getStatusCode() == 403){
+            return new JsonResponse($exception->getMessage(), 403);
         }
 
         return parent::render($request, $exception);
