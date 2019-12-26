@@ -12,6 +12,10 @@
                     Добавить клиента
                     <v-icon>mdi-account-plus</v-icon>
                 </v-btn>
+                <v-btn color="success" class="button-add">
+                    Экспорт клиентов
+                    <v-icon>mdi-file-excel-box</v-icon>
+                </v-btn>
                 <v-btn color="success" class="button-add" @click="showImportModal = true">
                     Импорт клиентов
                     <v-icon>mdi-file-excel-box</v-icon>

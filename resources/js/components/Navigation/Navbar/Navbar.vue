@@ -72,22 +72,29 @@
     import {mapGetters} from 'vuex';
     import NavItem from '../NavItem/NavItem';
     import showToast from '@/utils/Toast';
+    import {getCount} from "../../../api/feedback";
+
     export default {
-        beforeUpdate(to, from, next) {
-            //this.showUserDropDown = false;
-        },
         data() {
             return {
                 showUserDropDown: false,
                 showNotificationDropDown: false,
-                notificationsCount: 7,
+                notificationsCount: 0,
             }
         },
         components: {
             NavItem,
         },
         computed: {
-            ...mapGetters(['menuItems'])
+            ...mapGetters(['menuItems']),
+        },
+        async created() {
+            this.notificationsCount = await getCount();
+        },
+        async mounted() {
+          setInterval(async () => {
+              this.notificationsCount = await getCount();
+          }, 10000);
         },
         methods: {
             ordersNavigate() {

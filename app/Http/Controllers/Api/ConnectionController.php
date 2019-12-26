@@ -14,30 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class ConnectionController extends Controller {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
-    public function index() {
-        //
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    public function create() {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return Response
-     */
     public function store(Request $request) {
 
         $data = $request->all();
@@ -55,10 +32,14 @@ class ConnectionController extends Controller {
      *
      * @param Connection $connection
      * @param Request $request
-     * @return void
+     * @return Connection
      */
     public function update(Connection $connection, Request $request) {
         $data = $request->all();
+        if (isset($data['is_deleted'])) {
+            $connection->update(['is_deleted' => true]);
+            return null;
+        }
         $data['personal_account'] = preg_replace('/\s+/', '', $data['personal_account']);
         $connection->update($data);
         return $connection;
@@ -75,14 +56,15 @@ class ConnectionController extends Controller {
     }
 
     public function connect(Connection $connection) {
-        $connection->update(['is_active' => true]);
+        $connection->update(['is_active' => true, 'disable_date' => null]);
         return $connection;
     }
 
     public function disconnect(Connection $connection) {
-        $connection->update(['is_active' => false]);
+        $connection->update(['is_active' => false, 'disable_date' => Carbon::today()]);
         return $connection;
     }
+
 
     public function addBalances(Request $request) {
         $balances = json_decode($request->get('balances'), true);

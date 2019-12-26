@@ -164,6 +164,7 @@ const clientsModule = {
             }
             const result = await editClient(client);
             await commit(MUTATIONS.EDIT_USER, result);
+            return result;
         },
         async [ACTIONS.DELETE_CLIENT]({commit}, payload) {
             await deleteClient(payload);

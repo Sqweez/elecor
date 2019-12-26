@@ -12,8 +12,8 @@
     import ACTIONS from "../../store/actions";
 
     export default {
-        created() {
-          this.$store.dispatch(ACTIONS.INIT);
+        async created() {
+          await this.$store.dispatch(ACTIONS.INIT);
         },
         components: {
             Navbar

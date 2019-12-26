@@ -66,7 +66,9 @@ export async function editConnection(connection) {
 }
 
 export async function deleteConnection(connection) {
-    await axios.delete(`/api/connections/${connection}`);
+    await axios.patch(`/api/connections/${connection}`, {
+        is_deleted: true
+    });
 }
 
 export default {};

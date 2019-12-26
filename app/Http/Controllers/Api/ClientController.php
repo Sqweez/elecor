@@ -272,6 +272,7 @@ class ClientController extends Controller {
             $service = $keys[$index];
             $service_key = array_search($service, $serviceNames);
             $service_id = $services[$service_key]['id'];
+            $i['date_start'] = Carbon::parse($i['dogovordatanach'])->format('Y-m-d');
             $i['service_id'] = $service_id;
             $i['trademark'] = $services[$service_key]['trademark_default'];
             $i['client_type'] = $i['vidklienta'] === 'Юридические лица' ? 3 : 1;
@@ -306,7 +307,7 @@ class ClientController extends Controller {
                 'trademark' => $clientsDatum['trademark'],
                 'personal_account' => $clientsDatum['licshet'],
                 'price' => $clientsDatum['price'],
-                'date_start' => Carbon::now()
+                'date_start' => $clientsDatum['date_start']
             ];
 
             $connection_id = Connection::create($connection)->id;

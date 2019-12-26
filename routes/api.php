@@ -58,10 +58,14 @@ Route::prefix('connections')->group(function () {
     Route::get('history/{connection}', 'Api\ConnectionController@history');
 });
 
+Route::get('feedbacks', 'Api\FeedbackController@count');
+
 Route::resource('connections', 'Api\ConnectionController');
 Route::resource('stocks', 'Api\StockController');
 Route::resource('orders', 'Api\OrderController');
 Route::resource('feedback', 'Api\FeedbackController');
+
+Route::resource('stats', 'Api\StatController');
 
 Route::prefix('mobile')->group(function () {
     Route::post('auth', 'Api\MobileController@sms');

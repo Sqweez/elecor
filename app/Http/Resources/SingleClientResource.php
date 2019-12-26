@@ -23,7 +23,7 @@ class SingleClientResource extends JsonResource
             'photo' => $this->photo,
             'type' => new ClientTypeResource($this->type),
             'phones' => PhoneResource::collection($this->phones),
-            'connections' => ConnectionResource::collection($this->connections->except(['created_at', 'updated_at'])),
+            'connections' => ConnectionResource::collection($this->connections->where('is_deleted', false)->except(['created_at', 'updated_at'])),
         ];
     }
 }

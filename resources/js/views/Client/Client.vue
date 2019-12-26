@@ -117,7 +117,14 @@
                                     </td>
                                     <td class="text-center">
                                         <span v-if="!item.paymentMode">{{ item.balance }}</span>
-                                        <v-text-field v-else v-model="balance" type="number" v-mask="'########'"/>
+                                        <v-text-field
+                                            autofocus
+                                            @keypress.enter="addBalance(item)"
+                                            v-else
+                                            v-model="balance"
+                                            type="number"
+                                            ref="balanceInput"
+                                            v-mask="'########'"/>
                                     </td>
                                     <td class="text-center d-flex align-items-center justify-content-center">
                                         <div v-if="!editConnectionMode">
@@ -268,7 +275,8 @@
                     }
                     return c;
                 });
-
+                console.log(this.$refs.balanceInput);
+                //this.$refs.balanceInput[0].focus();
             },
             cancelBalance(item) {
                 this.balance = null;

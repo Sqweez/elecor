@@ -185,13 +185,14 @@
                 this.client.phones = this.client.phones
                     .filter(phone => !!phone)
                     .map(phone => phone.replaceAll('-', ''));
-                await this.$store.dispatch(ACTIONS.EDIT_CLIENT, {
+                delete this.client.push_token;
+                this.client = await this.$store.dispatch(ACTIONS.EDIT_CLIENT, {
                     client: this.client,
                     newPhoto: this.newPhoto,
                 });
                 this.newPhoto = '';
                 this.editMode = false;
-                this.$emit('saveToggled', this.user);
+                this.$emit('saveToggled', this.client);
             },
             showConnectModal() {
                 this.connectModal = true;

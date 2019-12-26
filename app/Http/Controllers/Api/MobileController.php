@@ -172,12 +172,6 @@ class MobileController extends Controller {
         $personal_id = $request->get('personal_id');
         $service_name = $request->get('service');
 
-       /* $price = 300;
-        $fullname = 'Катеринин Александр Андреевич';
-        $personal_id = '00 00 01';
-        $service_name = 'Охранно-тревожная сигнализация';*/
-
-
         // описание заказа
         $description = 'Оплата услуги "' . $service_name . '" для ' . $fullname . ' (Лицевой счет: ' . $personal_id . ')';
 

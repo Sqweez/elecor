@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Feedback;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FeedbackResource;
+use App\Order;
 use Illuminate\Http\Request;
 use Illuminate\Queue\RedisQueue;
 
@@ -20,14 +21,9 @@ class FeedbackController extends Controller
         return FeedbackResource::collection(Feedback::all()->sortByDesc('created_at'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+    public function count() {
+        $count = Feedback::where('is_worked', false)->count() + Order::where('is_worked', false)->count();
+        return $count;
     }
 
     /**

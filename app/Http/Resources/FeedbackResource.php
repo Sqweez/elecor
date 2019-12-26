@@ -22,7 +22,7 @@ class FeedbackResource extends JsonResource
             'feedback' => $this->feedback,
             'answer' => $this->answer,
             'date' => Carbon::parse($this->created_at)->format('d.m.Y'),
-            'is_worked' => $this->is_worked,
+            'is_worked' => !!$this->is_worked,
         ];
     }
 }

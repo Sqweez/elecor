@@ -11,3 +11,8 @@ export async function changeFeedbackStatus(feedback) {
     feedback.user_id = 1;
     await axios.patch(`/api/feedback/${feedback.id}`, feedback);
 }
+
+export async function getCount() {
+    const {data} = await axios.get('/api/feedbacks');
+    return data;
+}
