@@ -51,7 +51,7 @@ class ConnectionController extends Controller {
 
     public function getDuplicate(Request $request) {
         $account = $request->get('personal_account');
-        $result = Connection::where('personal_account', $account)->get();
+        $result = Connection::where(['personal_account' => $account,'is_deleted' => false])->get();
         return count($result);
     }
 

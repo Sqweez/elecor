@@ -163,6 +163,80 @@ class MobileController extends Controller {
         $service->update($data);
     }
 
+    public function welcome(Client $client) {
+        $message = [
+            'title' => 'Добро пожаловать!',
+            'body' => 'Добро пожаловать в приложение Клиент ОА «ELECOR»!'
+        ];
+        $pushToken = $client['push_token'];
+        $this->sendPush($message, $pushToken);
+        $this->storeMessage(['client_id' => $client['id'], 'title' => $message['title'], 'body' => $message['body']]);
+    }
+
+    private function storeMessage($message) {
+        $mailing_id = $this->getMailingId();
+        $_message = $message;
+        $_message['mailing_id'] = $mailing_id;
+        $mailing = Message::create($_message);
+        return $mailing;
+    }
+
+    private function getMailingId(): int {
+        $last_message = Message::all()->last();
+        if (!$last_message) {
+            $mailing_id = 1;
+        } else {
+            $mailing_id = $last_message['mailing_id'] + 1;
+        }
+        return $mailing_id;
+    }
+
+    private function sendPush($message, $pushToken = null) {
+        $content = array(
+            "en" => $message['body']
+        );
+
+        $heading = [
+            "en" => $message['title']
+        ];
+
+        $segment = !$pushToken
+            ? ['included_segments' => array('All')]
+            : gettype($pushToken) === 'array'
+                ? ['include_player_ids' => $pushToken]
+                : ['include_player_ids' => [$pushToken]];
+
+        $key = array_keys($segment)[0];
+
+        $fields = array(
+            'app_id' => env('ONE_SIGNAL_APP_ID'),
+            'data' => array("foo" => "bar"),
+            $key => $segment[$key],
+            'small_icon' => "ic_stat_onesignal_default.png",
+            'large_icon' =>"ic_stat_onesignal_default.png",
+            'contents' => $content,
+            'headings' => $heading,
+            'android_group' => 'group'
+        );
+
+
+        $fields = json_encode($fields);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8',
+            'Authorization: Basic ' . env("ONE_SIGNAL_REST_API_KEY")));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
+    }
+
     public function pay(Request $request) {
         $merchant_id = 514216;
         $secret_word = 'Vz4roXY8y3Ccxovs';

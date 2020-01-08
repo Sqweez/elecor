@@ -29,6 +29,15 @@ class DebtResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'connections' => $connections,
+            '_personalAccounts' => join(' ', array_map(function ($i) {
+                return $i['personal_account'];
+            }, $connections)),
+            '_addresses' => join(' ', array_map(function ($i) {
+                return $i['address'];
+            }, $connections)),
+            '_trademarks' => join(' ', array_map(function ($i) {
+                return $i['trademark'];
+            }, $connections)),
         ];
     }
 }

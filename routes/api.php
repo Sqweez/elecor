@@ -28,7 +28,7 @@ Route::middleware(['check_token'])->group(function () {
         Route::post('pushes', 'Api\ClientController@pushes');
         Route::get('parseClients', 'Api\ClientController@parseClients');
         //@TODO УБРАТЬ!
-        Route::get('clear', 'Api\ClientController@clear');
+        // Route::get('clear', 'Api\ClientController@clear');
     });
     Route::resource('clients', 'Api\ClientController');
 
@@ -77,6 +77,7 @@ Route::middleware(['check_token'])->group(function () {
         Route::delete('services/{service}', 'Api\MobileController@deleteService');
         Route::patch('services/{service}', 'Api\MobileController@editService');
         Route::post('pay', 'Api\MobileController@pay');
+        Route::get('welcome/{client}', 'Api\MobileController@welcome');
     });
 
 });

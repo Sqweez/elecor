@@ -63,6 +63,11 @@
                                 <li v-for="(i, index) of item.connections" :key="index">{{ i.debt}}</li>
                             </ul>
                         </template>
+                        <template v-slot:item._personalAccounts="{ item }">
+                            <p v-for="(i, index) of item.connections" :key="index">
+                                {{ i.personal_account }}
+                            </p>
+                        </template>
                         <template slot="footer.page-text" slot-scope="{pageStart, pageStop, itemsLength}">
                             {{ pageStart }}-{{ pageStop }} из {{ itemsLength }}
                         </template>
@@ -96,7 +101,25 @@
                 {text: 'Лицевой счет', value: 'personal_account', sortable: false},
                 {text: 'Адрес', value: 'address', sortable: false},
                 {text: 'Торговое наименование', value: 'trademark', sortable: false},
-                {text: 'Задолженность', value: 'debt', sortable: false}
+                {text: 'Задолженность', value: 'debt', sortable: false},
+                {
+                    text: 'лиц счета',
+                    value: '_personalAccounts',
+                    visible: false,
+                    align: ' d-none'
+                },
+                {
+                    text: 'адреса',
+                    value: '_addresses',
+                    visible: false,
+                    align: ' d-none'
+                },
+                {
+                    text: 'торговые наименования',
+                    value: '_trademarks',
+                    visible: false,
+                    align: ' d-none'
+                },
             ],
         }),
         methods: {

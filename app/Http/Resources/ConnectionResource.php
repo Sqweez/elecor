@@ -18,6 +18,7 @@ class ConnectionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'client_id' => $this->client_id,
             'user_id' => $this->user_id,
             'service_id' => $this->service_id,
             'trademark' => $this->trademark,

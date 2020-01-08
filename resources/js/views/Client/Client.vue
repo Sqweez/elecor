@@ -196,6 +196,7 @@
     import ACTIONS from "../../store/actions";
     import GETTERS from "../../store/getters";
     import showToast from "../../utils/Toast";
+    import {sendPushToClient} from "../../api/client/clientApi";
 
     export default {
         async beforeRouteLeave(to, from, next) {
@@ -233,6 +234,7 @@
             },
         },
         data: () => ({
+            service_name: '',
             tempModalKey: 0,
             editingConnection: null,
             editConnectionMode: false,
@@ -250,6 +252,7 @@
             paymentMode: false,
             editMode: false,
             destroy: false,
+            message: null,
         }),
         methods: {
             showTempServiceModal(item) {
@@ -275,8 +278,6 @@
                     }
                     return c;
                 });
-                console.log(this.$refs.balanceInput);
-                //this.$refs.balanceInput[0].focus();
             },
             cancelBalance(item) {
                 this.balance = null;
@@ -303,6 +304,10 @@
                     id: item.id,
                     balance: this.balance
                 });
+                await this.sendPush({
+                    title: 'Внимание!',
+                    body: `Ваш баланс пополнен на ${this.balance} тенге!`,
+                });
                 this.balance = null;
                 this.client.connections = this.client.connections.map(c => {
                     if (c.id === item.id) {
@@ -310,8 +315,10 @@
                     }
                     return c;
                 });
+
             },
             showDisconnectModal(service) {
+                this.service_name = service.service_name;
                 this.connection_id = service.id;
                 this.showConfirmationModalFunction('Вы действительно хотите отключить выбранную услугу?');
                 this.disconnectModal = true;
@@ -327,6 +334,7 @@
                 this.deleteModal = true;
             },
             showConnectModal(service) {
+                this.service_name = service.service_name;
                 this.connection_id = service.id;
                 this.showConfirmationModalFunction('Вы действительно хотите подключить выбранную услугу?');
                 this.connectModal = true;
@@ -339,11 +347,21 @@
             },
             async disconnectService() {
                 await this.$store.dispatch(ACTIONS.DISCONNECT, this.connection_id);
+                await this.sendPush({
+                    title: 'Внимание!',
+                    body: `Услуга ${this.service_name} отключена.`,
+                });
+                this.service_name = '';
                 this.disconnectModal = false;
                 this.connection_id = null;
             },
             async connectService() {
                 await this.$store.dispatch(ACTIONS.CONNECT, this.connection_id);
+                await this.sendPush({
+                    title: 'Внимание!',
+                    body: `Вы подключили услугу ${this.service_name}.`,
+                });
+                this.service_name = '';
                 this.connectModal = false;
                 this.connection_id = null;
             },
@@ -355,6 +373,18 @@
             async enableEditMode(e) {
                 this.editConnectionMode = true;
                 this.editingConnection = e;
+            },
+            async sendPush(_message) {
+                if (!this.client.push_token) {
+                    return null;
+                }
+                const message = {
+                    ..._message,
+                    client_id: this.client.id,
+                    user_id: 1
+                };
+
+                await sendPushToClient(message);
             },
             async editConnection() {
                 await this.$store.dispatch(ACTIONS.EDIT_CONNECTION, {

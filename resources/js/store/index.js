@@ -16,9 +16,9 @@ const store = new Store({
     mutations: {},
     actions: {
         async [ACTIONS.INIT]({dispatch}) {
+            await dispatch(ACTIONS.GET_CLIENT_TYPES);
             await dispatch(ACTIONS.GET_SERVICES);
             await dispatch(ACTIONS.GET_CLIENTS);
-            await dispatch(ACTIONS.GET_CLIENT_TYPES);
         }
     },
     modules: {
