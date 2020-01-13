@@ -88,7 +88,8 @@
     import GETTERS from "../../../store/getters";
     import {getDuplicate} from "../../../api/connection";
     import ACTIONS from "../../../store/actions";
-
+    import showToast from "../../../utils/Toast";
+    import {sendPushToClient} from "../../../api/client/clientApi";
     String.prototype.replaceAll = function (search, replacement) {
         let target = this;
         return target.split(search).join(replacement);
@@ -135,8 +136,28 @@
                 this.connection.personal_account = this.connection.personal_account.replaceAll(' ', '');
                 this.connection.balance = this.connection.month_price * -1;
                 await this.$store.dispatch(ACTIONS.ADD_CONNECTION, this.connection);
+                const service_name = this.services.filter(s => s.id === this.connection.service_id)[0].name;
+                const message = {
+                    title: 'Внимание',
+                    body: `Вы были подключены к услуге "${service_name}"`
+                };
+                await this.sendMessage(message);
+                if (this.connection.month_price > 0) {
+                    message.body = `С Вашего баланса произошло списание ${this.connection.month_price} тг по услуге "${service_name}!"`;
+                    await this.sendMessage(message);
+                }
                 this.$emit('connect');
                 this.loading = false;
+            },
+            async sendMessage(message) {
+                const _message = {
+                    ...message,
+                    client_id: this.connection.client_id,
+                    user_id: 1,
+                };
+                const response = await sendPushToClient(_message);
+                console.log(response);
+                this.showSendModal = false;
             },
             async checkDuplicates() {
                 if (!this.connection.personal_account) {

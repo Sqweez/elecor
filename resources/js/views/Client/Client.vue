@@ -266,8 +266,13 @@
             onSave(e) {
                 this.editMode = false;
             },
-            onSale() {
+            onSale(e) {
                 showToast('Разовая услуга успешно продана!');
+                const message = {
+                    title: `Внимание`,
+                    body: `Вами была приобретена услуга "${e.name}", стоимостью ${e.price} тг.`
+                };
+                this.sendPush(message);
                 this.oneTimeServiceModal = false;
                 this.tempModalKey++;
             },

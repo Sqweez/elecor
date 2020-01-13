@@ -53,7 +53,6 @@
 <script>
     import GETTERS from "../../../store/getters";
     import ACTIONS from "../../../store/actions";
-
     export default {
         data: () => ({
             valid: true,
@@ -101,7 +100,10 @@
                     connection_id: this.connection,
                 };
                 await this.$store.dispatch(ACTIONS.SALE, service);
-                this.$emit('onSale');
+                this.$emit('onSale', {
+                    name: service.name,
+                    price: this.price,
+                });
             }
         }
 

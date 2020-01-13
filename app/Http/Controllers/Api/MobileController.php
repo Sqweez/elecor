@@ -32,7 +32,6 @@ class MobileController extends Controller {
 
     public function getClientData(Client $client) {
         $client_info = new MobileClientResource($client);
-
         return $client_info;
     }
 
