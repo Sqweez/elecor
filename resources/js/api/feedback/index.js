@@ -6,9 +6,6 @@ export async function getFeedback() {
 }
 
 export async function changeFeedbackStatus(feedback) {
-    //@TODO
-    //Убрать пользователя
-    feedback.user_id = 1;
     await axios.patch(`/api/feedback/${feedback.id}`, feedback);
 }
 

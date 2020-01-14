@@ -45,32 +45,44 @@ const routes = [
     {
         path: '/page-content',
         name: 'PageContent',
-        component: () => import('../views/Control/PageContent/PageContent')
+        component: () => import('../views/Control/PageContent/PageContent'),
+        meta: {
+            denied: [4]
+        }
     },
     {
         path: '/users',
         name: 'users.index',
         component: () => import('../views/Services/Users/Users'),
+        meta: {
+            denied: [4, 2, 1]
+        }
     },
     {
         path: '/client-fields',
         name: 'ClientFields',
-        component: () => import('../views/Services/ClientFields/ClientFields')
+        component: () => import('../views/Services/ClientFields/ClientFields'),
+        meta: {
+            denied: [4, 2, 1]
+        }
     },
     {
         path: '/mailing',
         name: 'Mailing',
-        component: () => import('../views/Services/Mailing/Mailing')
+        component: () => import('../views/Services/Mailing/Mailing'),
+        meta: {
+            denied: [2, 1]
+        }
+
     },
     {
         path: '/prices',
         name: 'Prices',
-        component: () => import('../views/Services/Prices/Prices')
+        component: () => import('../views/Services/Prices/Prices'),
+        meta: {
+            denied: [4, 2]
+        }
     },
-   /* {
-        path: '*',
-        redirect: '/clients'
-    }*/
 
 ];
 

@@ -98,6 +98,7 @@
                     name: this.name || this.getName,
                     price: +this.price,
                     connection_id: this.connection,
+                    user_id: this.$store.getters.user.id,
                 };
                 await this.$store.dispatch(ACTIONS.SALE, service);
                 this.$emit('onSale', {

@@ -1,11 +1,11 @@
 <template>
     <div>
         <div class="d-flex justify-content-between">
-            <v-btn color="primary" class="button-add">
+            <v-btn color="primary" class="button-add" v-if="isAdmin">
                 Экспорт данных
                 <v-icon>mdi-file-excel-box</v-icon>
             </v-btn>
-            <v-btn color="primary" @click="addModal = true">
+            <v-btn color="primary" @click="addModal = true" v-if="isAdmin">
                 Добавить баннер
                 <v-icon>mdi-plus</v-icon>
             </v-btn>
@@ -62,19 +62,23 @@
             :state="deleteModal"
             ok-message="Удалить"
             v-on:cancel="closeDeleteModal"
+            v-if="isAdmin"
             v-on:confirm="deleteStock"/>
         <ConfirmationModal
+            v-if="isAdmin"
             ok-message="Скрыть"
             :message="modalMessage"
             :state="hideModal"
             v-on:cancel="closeHideModal"
             v-on:confirm="changeStockStatus"/>
         <AddNewsModal
+            v-if="isAdmin"
             title="Добавление баннера"
             v-on:onClose="closeAddModal"
             v-on:onSave="stockCreated"
             :state="addModal"/>
         <AddNewsModal
+            v-if="isAdmin"
             title="Редактирование баннера"
             v-on:onClose="closeEditModal"
             v-on:onSave="stockEdited"
@@ -90,13 +94,55 @@
     import AddNewsModal from "../../Modals/AddNewsModal/AddNewsModal";
     import ConfirmationModal from "../../Modals/ConfirmationModal/ConfirmationModal";
     import ACTIONS from "../../../store/actions";
+
     export default {
         components: {
             ConfirmationModal, AddNewsModal
         },
+        props: {
+            isAdmin: {
+                type: Boolean
+            }
+        },
         computed: {
             stocks() {
                 return this.$store.getters.stocks;
+            },
+            headers() {
+                const headers = [
+                    {
+                        text: 'Наименование',
+                        value: 'title',
+                        sortable: false,
+                    },
+                    {
+                        text: 'Дата создания',
+                        value: 'date',
+                        sortable: false
+                    },
+                    {
+                        text: 'Тип',
+                        value: 'type',
+                        sortable: false
+                    },
+                    {
+                        text: 'Баннер',
+                        value: 'image',
+                        sortable: false,
+                        align: 'center'
+                    }
+
+                ];
+
+                if (this.isAdmin) {
+                    headers.push({
+                        text: 'Действие',
+                        value: 'action',
+                        sortable: false
+                    })
+                }
+
+                return headers;
             }
         },
         data: () => ({
@@ -108,35 +154,6 @@
             hideModal: false,
             addModal: false,
             editModal: false,
-            headers: [
-                {
-                    text: 'Наименование',
-                    value: 'title',
-                    sortable: false,
-                },
-                {
-                    text: 'Дата создания',
-                    value: 'date',
-                    sortable: false
-                },
-                {
-                    text: 'Тип',
-                    value: 'type',
-                    sortable: false
-                },
-                {
-                    text: 'Баннер',
-                    value: 'image',
-                    sortable: false,
-                    align: 'center'
-                },
-
-                {
-                    text: 'Действие',
-                    value: 'action',
-                    sortable: false
-                }
-            ],
             search: '',
         }),
         methods: {

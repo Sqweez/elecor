@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Client;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use App\Role;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +16,7 @@ class UserController extends Controller
 {
 
     public function index() {
-        return Auth::check() ? '123' : 'false';
+        return UserResource::collection(User::all());
     }
 
     public function store(Request $request)
@@ -22,15 +25,16 @@ class UserController extends Controller
         $user['token'] = Str::random(60);
         $user['password'] = Hash::make($user['password']);
 
-        return User::create($user);
+        $user = User::create($user);
+
+        return new UserResource($user);
     }
 
     public function auth(Request $request) {
         if ($request->exists('token')) {
             $user = User::where('token', $request->get('token'))->get()->first();
             if (isset($user['id'])) {
-                // Auth::loginUsingId($user['id']);
-                return $user;
+                return new UserResource($user);
             } else {
                 return ['error' => 'Данные авторизации устарели'];
             }
@@ -46,12 +50,15 @@ class UserController extends Controller
             return ['error' => 'Неверный пароль'];
         }
 
-        // Auth::loginUsingId($user['id']);
-        return $user;
+        return new UserResource($user);
     }
 
     public function checkToken(Request $request) {
 
+    }
+
+    public function getRoles() {
+        return Role::all();
     }
 
     /**
@@ -79,13 +86,18 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param \Illuminate\Http\Request $request
+     * @param User $user
+     * @return UserResource
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-        //
+        $data = $request->all();
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+        $user->update($data);
+        return new UserResource($user);
     }
 
     /**
@@ -96,6 +108,7 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = User::find($id);
+        $user->delete();
     }
 }

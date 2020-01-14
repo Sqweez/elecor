@@ -10,7 +10,7 @@
                     </div>
                 </router-link>
                 <div class="menu-wrapper d-flex">
-                    <div class="badge">
+                    <div class="badge" v-if="user.role_id !== 4">
                         <v-badge
                             overlap
                             small
@@ -30,13 +30,13 @@
                             </v-btn>
                         </v-badge>
                     </div>
-                    <div class="user-dropdown" v-ripple>
-                        <div class="user-dropdown-toggle d-flex align-items-center"
+                    <div class="user-dropdown" v-ripple >
+                        <div class="user-dropdown-toggle d-flex align-items-center" style="min-width: 200px;"
                              @click="showUserDropDown = !showUserDropDown"
                                >
                             <div class="user-info">
                                 <div class="user-name">{{ user.name }}</div>
-                                <div class="user-role">Администратор</div>
+                                <div class="user-role">{{ user.role }}</div>
                             </div>
                             <v-avatar size="40" color="primary">
                                 <img src="../../../images/logo.png" alt="">
@@ -44,10 +44,10 @@
                         </div>
                         <div class="user-dropdown-content" v-if="showUserDropDown">
                             <ul class="dropdown-list">
-                                <li class="dropdown-item" v-ripple @click="settingsNavigate">
+                                <!--<li class="dropdown-item" v-ripple @click="settingsNavigate">
                                     <v-icon>mdi-settings-outline</v-icon>
                                     <span>Настройки</span>
-                                </li>
+                                </li>-->
                                 <li class="dropdown-item" v-ripple @click="logout">
                                     <v-icon>mdi-logout</v-icon>
                                     <span>Выход</span>

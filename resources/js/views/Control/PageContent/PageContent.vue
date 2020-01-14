@@ -14,9 +14,9 @@
                 </v-btn>
             </div>
             <div class="p-4">
-                <ContactsSegment v-if="currentSegment === 'contacts'"/>
-                <ServiceSegment v-if="currentSegment === 'services'"/>
-                <StocksSegment v-if="currentSegment === 'banners'"/>
+                <ContactsSegment v-if="currentSegment === 'contacts'" :isAdmin="isAdmin"/>
+                <ServiceSegment v-if="currentSegment === 'services'" :isAdmin="isAdmin"/>
+                <StocksSegment v-if="currentSegment === 'banners'" :isAdmin="isAdmin"/>
             </div>
         </v-card-text>
     </v-card>
@@ -34,6 +34,14 @@
         data: () => ({
             currentSegment: 'contacts',
         }),
+        computed: {
+            user() {
+                return this.$store.getters.user;
+            },
+            isAdmin() {
+                return this.user.role_id === 3;
+            }
+        },
         async mounted() {
             await this.$store.dispatch(ACTIONS.GET_STOCKS);
             await this.$store.dispatch(ACTIONS.GET_MOBILE_SERVICES);

@@ -1,6 +1,4 @@
 import axios from 'axios';
-import {fromHex} from "vuetify/lib/components/VColorPicker/util";
-import {reactiveProp} from "vue-chartjs/es/mixins";
 
 export async function getDuplicate(account) {
     const response = await axios.get(`/api/connections/duplicates?personal_account=${account}`);
@@ -8,8 +6,6 @@ export async function getDuplicate(account) {
 }
 
 export async function createConnection(service) {
-    //@TODO после того как сделаю авторизацию на сайте убрать заглушку
-    service.user_id = 1;
     const response = await axios.post(`/api/connections`, service);
     console.log(response);
     return response.data;
@@ -26,8 +22,6 @@ export async function connectService(service) {
 }
 
 export async function addBalance(service, balance) {
-    //@TODO после того как сделаю авторизацию на сайте убрать заглушку
-    balance.user_id = 1;
     balance.balance_change = balance.balance;
     delete balance.balance;
     const response = await axios.post(`/api/connections/balance/${service}`, balance);
@@ -35,8 +29,6 @@ export async function addBalance(service, balance) {
 }
 
 export async function makeSale(sale) {
-    //@TODO после того как сделаю авторизацию на сайте убрать заглушку
-    sale.user_id = 1;
     const response = await axios.post(`/api/connections/sale`, sale);
     return response.data;
 }

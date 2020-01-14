@@ -18,6 +18,7 @@ use App\Service;
 use App\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 
 class ClientController extends Controller {
@@ -116,7 +117,7 @@ class ClientController extends Controller {
      * Remove the specified resource from storage.
      *
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy($id) {
         $client = Client::find($id);
@@ -158,8 +159,7 @@ class ClientController extends Controller {
                     $activeConnection['price'] = $activeConnection['month_price'];
                 }
                 Payment::create(['connection_id' => $activeConnection['id'], 'price' => $activeConnection['price']]);
-                //@TODO Заменить на пользователя автоматически
-                Transaction::create(['connection_id' => $activeConnection['id'], 'balance_change' => $activeConnection['price'] * -1, 'user_id' => 1]);
+                Transaction::create(['connection_id' => $activeConnection['id'], 'balance_change' => $activeConnection['price'] * -1, 'user_id' => 0]);
                 $message = [
                     'title' => 'Внимание',
                     'body' => 'С Вашего баланса произошло списание ' . $activeConnection['price'] . ' тг по услуге ' . $activeConnection['service_name'] . '.!'

@@ -8,19 +8,19 @@
                 <h4>
                     Всего клиентов: {{ clientsCount }}
                 </h4>
-                <v-btn color="primary" class="button-add" @click="showAddClientModal = true">
+                <v-btn color="primary" class="button-add" @click="showAddClientModal = true" v-if="user.role_id === 1 || user.role_id === 3">
                     Добавить клиента
                     <v-icon>mdi-account-plus</v-icon>
                 </v-btn>
-                <v-btn color="success" class="button-add">
+                <v-btn color="success" class="button-add" v-if="user.role_id === 3">
                     Экспорт клиентов
                     <v-icon>mdi-file-excel-box</v-icon>
                 </v-btn>
-                <v-btn color="success" class="button-add" @click="showImportModal = true">
+                <v-btn color="success" class="button-add" @click="showImportModal = true" v-if="user.role_id === 3">
                     Импорт клиентов
                     <v-icon>mdi-file-excel-box</v-icon>
                 </v-btn>
-                <v-btn color="success" class="button-add" @click="parseBalance">
+                <v-btn color="success" class="button-add" @click="parseBalance" v-if="user.role_id === 1 || user.role_id === 3">
                     Пополнить баланс
                     <v-icon>mdi-cash</v-icon>
                 </v-btn>
@@ -112,7 +112,7 @@
             }
         },
         computed: {
-            ...mapGetters([GETTERS.CLIENTS, GETTERS.CLIENTS_COUNT])
+            ...mapGetters([GETTERS.CLIENTS, GETTERS.CLIENTS_COUNT, 'user'])
         },
         data: () => ({
             showAddClientModal: false,

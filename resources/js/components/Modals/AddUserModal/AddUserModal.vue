@@ -9,13 +9,16 @@
             </v-card-title>
             <v-card-text>
                 <v-form v-if="!loading">
-                    <v-text-field label="Имя" v-model="user.displayName"></v-text-field>
+                    <v-text-field label="Имя" v-model="user.name"></v-text-field>
                     <v-text-field label="Логин" v-model="user.login"></v-text-field>
-                    <v-text-field label="Пароль" v-model="user.password"></v-text-field>
+                    <v-checkbox color="primary" label="Изменить пароль" v-model="changePassword" v-if="editMode"/>
+                    <v-text-field label="Пароль" v-model="user.password" v-if="changePassword || !editMode"></v-text-field>
                     <v-select
                         label="Роль"
                         :items="roles"
-                        v-model="user.role"
+                        item-value="id"
+                        item-text="name"
+                        v-model="user.role_id"
                     />
                 </v-form>
             </v-card-text>
@@ -41,33 +44,74 @@
 
 <script>
     export default {
-        mounted() {
-          if (this.editMode) {
-              this.user.displayName = 'Администратор';
-              this.user.login = 'elecor-kuzet';
-              this.user.password = '123456';
-              this.user.role = 'Суперпользователь';
-          }
+        watch: {
+            state(oldValue, currentValue) {
+                if (oldValue && this.editMode) {
+                    const user = this.$store.getters.user_by_id(this.id);
+                    this.user = {
+                        ...user,
+                    };
+                    delete this.user.token;
+                } else {
+                    this.user = {
+                        name: '',
+                        login: '',
+                        password: '',
+                        role_id: null
+                    };
+                }
+            }
         },
         methods: {
-            onSave() {
+            async onSave() {
                 this.loading = true;
-                setTimeout(() => {
-                    this.$emit('onSave')
-                }, 3000);
+                if (!this.editMode) {
+                    const _user = {
+                        name: this.user.name,
+                        login: this.user.login,
+                        role: this.user.role_id,
+                        password: this.user.password
+                    };
+
+                    await this.$store.dispatch('createUser', _user);
+                }
+
+                else {
+                    const user = {
+                        id: this.user.id,
+                        name: this.user.name,
+                        login: this.user.login,
+                        role: this.user.role_id,
+                    };
+
+                    if (this.changePassword) {
+                        user.password = this.user.password;
+                    } else {
+                        delete user.password;
+                    }
+
+                    await this.$store.dispatch('editUser', user);
+                }
+                this.loading = false;
+                this.changePassword = false;
+                this.user = {name: '', };
+                this.$emit('onSave')
             },
+        },
+        computed: {
+            roles() {
+                return this.$store.getters.get_roles;
+            }
         },
         data: () => ({
             loading: false,
+            changePassword: false,
             user: {
-                displayName: '',
+                name: '',
                 login: '',
                 password: '',
-                role: null
+                role_id: null
             },
-            roles: [
-                'Суперпользователь', 'Администратор', 'Кассир',
-            ],
         }),
         props: {
             state: {
@@ -81,6 +125,10 @@
             editMode: {
                 type: Boolean,
                 default: false
+            },
+            id: {
+                type: Number,
+                default: null
             }
         }
     }

@@ -44,16 +44,13 @@
             if (this.$store.getters.isLoggedIn) {
                 return;
             }
-            if (this.$store.getters.hasToken) {
+            /*if (this.$store.getters.hasToken) {
                 const response = await this.$store.dispatch('login', {token: this.token});
-                console.log(this.isLoggedIn);
-                console.log(this.hasToken);
                 if (response.error) {
                     showToast(response.error, '', 'error');
                     await this.$router.push('/login');
-                    return;
                 }
-            }
+            }*/
         },
         components: {Navbar, MainLayout, LoginLayout}
     };

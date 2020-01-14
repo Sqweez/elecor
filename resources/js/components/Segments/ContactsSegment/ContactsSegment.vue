@@ -1,26 +1,28 @@
 <template>
     <v-form>
-        <v-text-field v-model="contacts.title" label="Название организации"/>
+        <v-text-field v-model="contacts.title" label="Название организации" :readonly="!isAdmin"/>
         <h3>Информация:</h3>
         <div class="d-flex align-items-center">
             <div style="flex-grow: 1">
                 <div class="d-flex" v-for="(c, key) of contacts.information" :key="key">
                     <v-text-field
+                        :readonly="!isAdmin"
                         label="Заголовок"
                         v-model="c.key"
                         style="margin-top: 5px; margin-right: 10px;"/>
                     <v-textarea
+                        :readonly="!isAdmin"
                         auto-grow
                         rows="1"
                         style="margin-left: 10px;"
                         v-model="c.value"
                         label="Значение"/>
-                    <v-btn icon @click="removeInformation(key)">
+                    <v-btn icon @click="removeInformation(key)" v-if="isAdmin">
                         <v-icon>mdi-close</v-icon>
                     </v-btn>
                 </div>
             </div>
-            <v-btn icon @click="addInformation()">
+            <v-btn icon @click="addInformation()" v-if="isAdmin">
                 <v-icon>mdi-plus</v-icon>
             </v-btn>
         </div>
@@ -29,28 +31,30 @@
             <div style="flex-grow: 1">
                 <div class="d-flex" v-for="(c, key) of contacts.phones" :key="key">
                     <v-text-field
+                        :readonly="!isAdmin"
                         label="Заголовок"
                         v-model="c.key"
                         style="margin-top: 5px; margin-right: 10px;"/>
                     <v-text-field
+                        :readonly="!isAdmin"
                         style="margin-left: 10px;"
                         v-model="c.value"
                         v-mask="'+7 ### ### ## ##'"
                         label="Значение"/>
-                    <v-btn icon @click="removePhone(key)">
+                    <v-btn icon @click="removePhone(key)"  v-if="isAdmin">
                         <v-icon>mdi-close</v-icon>
                     </v-btn>
                 </div>
             </div>
-            <v-btn icon @click="addPhones()">
+            <v-btn icon @click="addPhones()"  v-if="isAdmin">
                 <v-icon>mdi-plus</v-icon>
             </v-btn>
         </div>
         <div class="d-flex">
             <iframe :src="contacts.map" height="300" width="500" frameborder="0"></iframe>
-            <v-text-field v-model="contacts.map" label="Ссылка на карту"/>
+            <v-text-field v-model="contacts.map" label="Ссылка на карту" v-if="isAdmin"/>
         </div>
-        <v-btn color="primary" block class="mt-5" @click="saveContacts">Сохранить</v-btn>
+        <v-btn color="primary" block class="mt-5" @click="saveContacts" v-if="isAdmin">Сохранить</v-btn>
     </v-form>
 </template>
 
@@ -68,6 +72,11 @@
                 map: '',
             }
         }),
+        props: {
+            isAdmin: {
+                type: Boolean
+            }
+        },
         async mounted() {
            await this.getContacts()
         },

@@ -32,11 +32,8 @@ const navbarModule = {
                     {
                         title: 'Содержание страниц',
                         url: '/page-content',
+                        hide: [4]
                     },
-                   /* {
-                        title: 'Акции',
-                        url: '/news',
-                    }*/
                 ]
             },
             {
@@ -46,18 +43,22 @@ const navbarModule = {
                     {
                         title: 'Прайс-лист',
                         url: '/prices',
+                        hide: [4, 2]
                     },
                     {
                         title: 'Пользователи',
                         url: '/users',
+                        hide: [4, 2, 1]
                     },
                     {
                         title: 'Поля клиента',
                         url: '/client-fields',
+                        hide: [4, 2, 1]
                     },
                     {
                         title: 'Рассылка',
                         url: '/mailing',
+                        hide: [2, 1]
                     }
                 ]
             },

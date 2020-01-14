@@ -58,8 +58,6 @@ class ExcelController extends Controller {
     }
 
     private function addBalance($connection, $sum) {
-        //@TODO:
-        //Убрать юзер ид
-        Transaction::create(['connection_id' => $connection, 'balance_change' => $sum, 'user_id' => 1]);
+        Transaction::create(['connection_id' => $connection, 'balance_change' => $sum, 'user_id' => 0]);
     }
 }

@@ -72,7 +72,7 @@
                                         <span v-if="transaction.balance < 0">Списание</span>
                                         <span v-else>Пополнение</span>
                                     </td>
-                                    <td>Кассир</td>
+                                    <td>{{ $store.getters.user_by_id(transaction.user_id).name }}</td>
                                     <td>{{ transaction.balance | positive }}</td>
                                     <td>
                                         <span v-if="transaction.sale">{{ transaction.sale }}</span>
@@ -164,6 +164,7 @@
                         return moment(p_date).isAfter(moment(date)) || moment(p_date).isSame(moment(date), 'day');
                     });
                 }
+
                 return this.history.transactions;
             }
         },

@@ -1,6 +1,6 @@
 <template>
     <div class="feedback-container">
-        <v-btn color="primary" class="button-add">
+        <v-btn color="primary" class="button-add" v-if="user.role_id === 3 || user.role_id === 4">
             Экспорт данных
             <v-icon>mdi-file-excel-box</v-icon>
         </v-btn>
@@ -60,21 +60,31 @@
     export default {
         components: {MessageModal},
         computed: {
-          feedbacks() {
-              return this.$store.getters.feedback;
+            feedbacks() {
+                return this.$store.getters.feedback;
+            },
+            user() {
+                return this.$store.getters.user;
+            },
+            feedbackHeaders() {
+                const headers = [
+                    {text: 'Контрагент', value: 'client', sortable: false},
+                    {text: 'Дата', value: 'date', sortable: false},
+                    {text: 'Обратная связь', value: 'feedback', sortable: false},
+                    {text: 'Ответ', value: 'answer', sortable: false},
+                ];
+
+                if (this.user.role_id === 3 || this.user.role_id === 4) {
+                    headers.push({text: 'Действие', value: 'action', sortable: false})
+                }
+
+                return headers;
             }
         },
         data: () => ({
             search: '',
             currentFeedback: null,
             showMessageModal: false,
-            feedbackHeaders: [
-                {text: 'Контрагент', value: 'client', sortable: false},
-                {text: 'Дата', value: 'date', sortable: false},
-                {text: 'Обратная связь', value: 'feedback', sortable: false},
-                {text: 'Ответ', value: 'answer', sortable: false},
-                {text: 'Действие', value: 'action', sortable: false}
-            ],
         }),
         methods: {
             showModal(e) {
@@ -96,7 +106,7 @@
             },
             async changeFeedbackStatus(message) {
                 await this.$store.dispatch(ACTIONS.CHANGE_FEEDBACK_STATUS,
-                    {id: this.currentFeedback.id, answer: message, is_worked: true}
+                    {id: this.currentFeedback.id, answer: message, is_worked: true, user_id: this.$store.getters.user.id}
                 );
                 this.showMessageModal = false;
                 showToast('Заявка обработана');

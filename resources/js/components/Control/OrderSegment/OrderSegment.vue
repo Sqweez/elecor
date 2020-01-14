@@ -1,6 +1,6 @@
 <template>
     <div class="orders-container">
-        <v-btn color="primary" class="button-add">
+        <v-btn color="primary" class="button-add" v-if="user.role_id === 3 || user.role_id === 4">
             Экспорт данных
             <v-icon>mdi-file-excel-box</v-icon>
         </v-btn>
@@ -40,7 +40,8 @@
                     <h4 class="green--text">Отработано</h4>
                 </div>
                 <div v-else>
-                    <v-btn color="primary" @click="showMessageModal(item)" v-if="item.client_id || item.push_token">Ответить
+                    <v-btn color="primary" @click="showMessageModal(item)" v-if="item.client_id || item.push_token">
+                        Ответить
                         <v-icon>mdi-message</v-icon>
                     </v-btn>
                     <v-btn color="success" @click="showCommentModal(item)">Отработано
@@ -74,6 +75,7 @@
     import showToast from "../../../utils/Toast";
     import CommentModal from "../../Modals/CommentModal/CommentModal";
     import ACTIONS from "../../../store/actions";
+
     export default {
         components: {MessageModal, CommentModal},
         methods: {
@@ -89,7 +91,11 @@
                 this.currentOrder = e;
             },
             async changeOrderStatus(e) {
-                await this.$store.dispatch(ACTIONS.CHANGE_ORDER_STATUS, {id: this.currentOrder.id, is_worked: true, ...e});
+                await this.$store.dispatch(ACTIONS.CHANGE_ORDER_STATUS, {
+                    id: this.currentOrder.id,
+                    is_worked: true, ...e,
+                    user_id: this.$store.getters.user.id,
+                });
                 this.commentModal = false;
                 showToast('Статус заявки изменен!');
             },
@@ -114,24 +120,34 @@
             }
         },
         computed: {
-          orders() {
-              return this.$store.getters.orders;
-          }
+            orders() {
+                return this.$store.getters.orders;
+            },
+            user() {
+                return this.$store.getters.user;
+            },
+            orderHeaders() {
+                const headers = [
+                    {text: 'Контрагент', value: 'client', sortable: false},
+                    {text: 'Телефон', value: 'phone', sortable: false},
+                    {text: 'Комментарий клиента', value: 'client_comment', sortable: false},
+                    {text: 'Дата', value: 'date', sortable: false},
+                    {text: 'Услуга', value: 'service', sortable: false},
+                    {text: 'Комментарий', value: 'comment', sortable: false},
+                ];
+
+                if (this.user.role_id === 3 || this.user.role_id === 4) {
+                    headers.push({text: 'Действие', value: 'action', sortable: false})
+                }
+
+                return headers;
+            }
         },
         data: () => ({
             currentOrder: null,
             messageModal: false,
             commentModal: false,
             search: '',
-            orderHeaders: [
-                {text: 'Контрагент', value: 'client', sortable: false},
-                {text: 'Телефон', value: 'phone', sortable: false},
-                {text: 'Комментарий клиента', value: 'client_comment', sortable: false},
-                {text: 'Дата', value: 'date', sortable: false},
-                {text: 'Услуга', value: 'service', sortable: false},
-                {text: 'Комментарий', value: 'comment', sortable: false},
-                {text: 'Действие', value: 'action', sortable: false},
-            ],
         })
     }
 </script>

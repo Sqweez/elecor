@@ -135,6 +135,7 @@
                 this.connection.client_id = this.$route.params.userId;
                 this.connection.personal_account = this.connection.personal_account.replaceAll(' ', '');
                 this.connection.balance = this.connection.month_price * -1;
+                this.connection.user_id = this.$store.getters.user.id;
                 await this.$store.dispatch(ACTIONS.ADD_CONNECTION, this.connection);
                 const service_name = this.services.filter(s => s.id === this.connection.service_id)[0].name;
                 const message = {

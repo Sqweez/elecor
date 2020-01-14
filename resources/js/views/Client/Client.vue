@@ -31,7 +31,7 @@
                                     <th class="text-center">Тариф</th>
                                     <th class="text-center">Лицевой счет</th>
                                     <th class="text-center">Баланс</th>
-                                    <th class="text-center">Действие</th>
+                                    <th class="text-center" v-if="user.role_id === 1 || user.role_id === 3">Действие</th>
                                 </tr>
                                 </thead>
                                 <div class="d-flex-align-center justify-content-center p-3 w-100"
@@ -51,7 +51,7 @@
                                         <span class="mt-2" v-if="!editConnectionMode">
                                             <span>{{ item.trademark }}</span>
                                         </span>
-                                        <v-menu transition="slide-y-transition" class="menu">
+                                        <v-menu transition="slide-y-transition" class="menu" v-if="user.role_id !== 2">
                                             <template v-slot:activator="{ on }">
                                                 <v-btn icon text class="float-left" v-on="on">
                                                     <v-icon>mdi-dots-vertical</v-icon>
@@ -61,21 +61,21 @@
                                                 <v-list-item
                                                     @click="showDisconnectModal(item)"
                                                     link
-                                                    v-if="item.is_active === 1"
+                                                    v-if="item.is_active === 1 && user.role_id !== 4"
                                                 >
                                                     <v-list-item-title v-text="'Отключить'"></v-list-item-title>
                                                 </v-list-item>
                                                 <v-list-item
                                                     link
                                                     @click="showConnectModal(item)"
-                                                    v-if="item.is_active === 0"
+                                                    v-if="item.is_active === 0 && user.role_id !== 4"
                                                 >
                                                     <v-list-item-title v-text="'Подключить'"></v-list-item-title>
                                                 </v-list-item>
                                                 <v-list-item
                                                     @click="showDeleteModal(item)"
                                                     link
-                                                    v-if="item.is_active === 0"
+                                                    v-if="item.is_active === 0 && user.role_id !== 4"
                                                 >
                                                     <v-list-item-title v-text="'Удалить'"></v-list-item-title>
                                                 </v-list-item>
@@ -87,7 +87,7 @@
                                                 </v-list-item>
                                                 <v-list-item
                                                     link
-                                                    v-if="item.is_active === 1"
+                                                    v-if="item.is_active === 1 && user.role_id !== 4"
                                                     @click="showTempServiceModal(item)"
                                                 >
                                                     <v-list-item-title v-text="'Разовые услуги'"></v-list-item-title>
@@ -126,7 +126,7 @@
                                             ref="balanceInput"
                                             v-mask="'########'"/>
                                     </td>
-                                    <td class="text-center d-flex align-items-center justify-content-center">
+                                    <td class="text-center d-flex align-items-center justify-content-center" v-if="user.role_id === 1 || user.role_id === 3">
                                         <div v-if="!editConnectionMode">
                                             <v-btn color="primary"
                                                    v-if="!item.paymentMode"
@@ -158,21 +158,25 @@
                 </div>
             </v-card-text>
             <ConfirmationModal
+                v-if="user.role_id !== 2"
                 v-on:cancel="connectModal = false"
                 v-on:confirm="connectService"
                 :message="modalMessage"
                 :state="connectModal"/>
             <ConfirmationModal
+                v-if="user.role_id !== 2"
                 v-on:cancel="disconnectModal = false"
                 v-on:confirm="disconnectService"
                 :message="modalMessage"
                 :state="disconnectModal"/>
             <ConfirmationModal
+                v-if="user.role_id !== 2"
                 v-on:confirm="deleteService"
                 v-on:cancel="deleteModal = false"
                 :message="modalMessage"
                 :state="deleteModal"/>
             <OneTimeServiceModal
+                v-if="user.role_id !== 2"
                 :key="tempModalKey + 78797897"
                 :service="service_id"
                 :connection="connection_id"
@@ -180,6 +184,7 @@
                 v-on:onSale="onSale"
                 v-on:onClose="oneTimeServiceModal = false; tempModalKey++"/>
             <HistoryModal
+                v-if="user.role_id !== 2"
                 :key="historyModalKey"
                 :connection="connection_id"
                 :state="historyModal"
@@ -232,6 +237,9 @@
             subjects() {
                 return this.$store.getters.getSubjects;
             },
+            user() {
+                return this.$store.getters.user;
+            }
         },
         data: () => ({
             service_name: '',
@@ -307,7 +315,8 @@
                 }
                 await this.$store.dispatch(ACTIONS.ADD_BALANCE, {
                     id: item.id,
-                    balance: this.balance
+                    balance: this.balance,
+                    user_id: this.$store.getters.user.id
                 });
                 await this.sendPush({
                     title: 'Внимание!',

@@ -6,7 +6,7 @@
             </v-card-title>
             <v-card-text>
                 <div class="p-3">
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between" v-if="user.role_id === 3">
                         <v-btn color='primary'>
                             Экспорт данных
                             <v-icon>mdi-file-excel</v-icon>
@@ -125,16 +125,6 @@
                     isOneTime: true
                 }
             ],
-            headers: [
-                {
-                    text: 'Наименование',
-                    align: 'left',
-                    sortable: false,
-                    value: 'name',
-                },
-                {text: 'Тариф', value: 'price', sortable: false},
-                {text: 'Действие', value: 'action', sortable: false},
-            ],
             editingService: {},
         }),
         computed: {
@@ -156,6 +146,25 @@
             },
             oneTimeServices() {
                 return this.services.filter(i => i.main_id);
+            },
+            user() {
+                return this.$store.getters.user;
+            },
+            headers() {
+                const h = [
+                    {
+                        text: 'Наименование',
+                        align: 'left',
+                        sortable: false,
+                        value: 'name',
+                    },
+                    {text: 'Тариф', value: 'price', sortable: false}
+                ];
+
+                if (this.user.role_id === 3) {
+                    h.push({text: 'Действие', value: 'action', sortable: false});
+                }
+                return h;
             }
         },
         methods: {

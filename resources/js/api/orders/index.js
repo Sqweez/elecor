@@ -6,8 +6,5 @@ export async function getOrders() {
 }
 
 export async function changeOrderStatus(order) {
-    //@TODO
-    //Убрать пользователя
-    order.user_id = 1;
     await axios.patch(`/api/orders/${order.id}`, order);
 }

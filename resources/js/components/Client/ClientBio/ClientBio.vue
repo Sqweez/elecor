@@ -62,7 +62,7 @@
                                     auto-grow></v-textarea>
                     </div>
                 </v-col>
-                <v-col cols="4">
+                <v-col cols="4" v-if="user.role_id !== 2">
                     <v-row justify="center">
                         <div>
                             <v-avatar size="200" tile v-if="newPhoto || client.photo">
@@ -82,7 +82,7 @@
                 </v-col>
                 <v-col cols="4">
                     <div class="button-container">
-                        <v-btn block :color="editMode ? 'success' : 'primary'" @click="editUser" :disabled="!valid">
+                        <v-btn block :color="editMode ? 'success' : 'primary'" @click="editUser" :disabled="!valid" v-if="user.role_id === 1 || user.role_id === 3">
                             <span v-if="!editMode">Редактировать</span>
                             <span v-else>Сохранить</span>
                             <v-icon v-if="editMode">mdi-check</v-icon>
@@ -94,24 +94,27 @@
                             </span>
                         </v-btn>
                     </div>
-                    <div class="button-container" v-if="!editMode">
+                    <div class="button-container" v-if="!editMode && (user.role_id === 1 || user.role_id === 3)">
                         <v-btn block color="primary" @click="showConnectModal">Новая услуга</v-btn>
                     </div>
-                    <div class="button-container" v-if="!editMode">
+                    <div class="button-container" v-if="!editMode && user.role_id !== 2">
                         <v-btn block color="primary" @click="showPushModal">Отправить пуш</v-btn>
                     </div>
                 </v-col>
                 <message-modal
+                    v-if="user.role_id !== 2"
                     :state="showSendModal"
                     v-on:sendMessage="sendMessage"
                     title="Отправка пуш-уведомления"
                     v-on:modalClosed="closeModal"/>
                 <ConnectServiceModal
+                    v-if="user.role_id !== 2"
                     :key="connectKey"
                     :state="connectModal"
                     v-on:cancel="closeConnectModal"
                     v-on:connect="onConnectModal"/>
                 <ConfirmationModal
+                    v-if="user.role_id !== 2"
                     :state="deleteModal"
                     v-on:cancel="deleteModal = false"
                     v-on:confirm="deleteClient"
@@ -153,6 +156,9 @@
             ],
         }),
         computed: {
+            user() {
+                return this.$store.getters.user;
+            },
             phoneInputs() {
                 if (this.client.phones.length === 0) {
                     return [{component: VTextField}]

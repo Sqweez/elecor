@@ -18,7 +18,7 @@
                 <div v-if="clients !== null">
                     <h3>Общая задолженность: {{total_debt * -1}} тенге</h3>
                     <v-divider class="mt-4"></v-divider>
-                    <v-btn color="primary mt-4">Экспорт данных
+                    <v-btn color="primary mt-4" v-if="user.role_id !== 2">Экспорт данных
                         <v-icon>mdi-file-excel-box</v-icon>
                     </v-btn>
                     <v-spacer></v-spacer>
@@ -86,6 +86,11 @@
             const response = await getDebts();
             this.clients = response.debts;
             this.total_debt = response.total_debt;
+        },
+        computed: {
+            user() {
+                return this.$store.getters.user;
+            }
         },
         data: () => ({
             clients: null,

@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="d-flex justify-content-end mb-2">
-            <v-btn color="success" @click="addModal = true">
+            <v-btn color="success" @click="addModal = true" v-if="isAdmin">
                 Добавить услугу
                 <v-icon>mdi-plus</v-icon>
             </v-btn>
@@ -16,7 +16,7 @@
                     <th>Иконка</th>
                     <th>Изображение</th>
                     <th>Разовые услуги</th>
-                    <th>Действие</th>
+                    <th v-if="isAdmin">Действие</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -46,7 +46,7 @@
                         </ul>
                         <span v-else><b>Разовая услуга</b></span>
                     </td>
-                    <td>
+                    <td v-if="isAdmin">
                         <v-btn icon @click="deleteId = service.id; deleteModal = true;">
                             <v-icon>mdi-delete</v-icon>
                         </v-btn>
@@ -84,6 +84,11 @@
         components: {
             AddMobileService,
             ConfirmationModal
+        },
+        props: {
+            isAdmin: {
+                type: Boolean
+            }
         },
         data: () => ({
             addModal: false,

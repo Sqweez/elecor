@@ -27,12 +27,11 @@ Route::middleware(['check_token'])->group(function () {
         Route::post('push', 'Api\ClientController@push');
         Route::post('pushes', 'Api\ClientController@pushes');
         Route::get('parseClients', 'Api\ClientController@parseClients');
-        //@TODO УБРАТЬ!
-        // Route::get('clear', 'Api\ClientController@clear');
     });
     Route::resource('clients', 'Api\ClientController');
 
     Route::resource('users', 'Api\UserController');
+    Route::get('roles', 'Api\UserController@getRoles');
     // Clients Routes End
     Route::post('/upload', 'Service\ImageController@upload');
     Route::post('/delete', 'Service\ImageController@delete');
