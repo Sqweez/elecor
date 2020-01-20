@@ -17,7 +17,7 @@ class TransactionResource extends JsonResource
         return [
             'id' => $this->id,
             'balance' => $this->balance_change,
-            'user_id' => $this->user_id,
+            'user_id' => intval($this->user_id),
             'sale' => $this->sales['name'],
             'created_at' => $this->created_at,
         ];

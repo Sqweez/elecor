@@ -83,6 +83,11 @@ class ClientController extends Controller {
         return new SingleClientResource($client);
     }
 
+    public function deleteTransaction($id) {
+        $transaction = Transaction::find($id);
+        $transaction->delete();
+    }
+
     /**
      * Update the specified resource in storage.
      *

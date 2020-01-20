@@ -129,6 +129,9 @@
         }),
         methods: {
             rowClick(e) {
+                window.open(window.origin + '/clients/' + e.id, '_blank');
+            },
+            openInNewTab(e) {
                 this.$router.push({name: 'clients.show', params: {userId: e.id}})
             }
         }

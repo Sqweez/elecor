@@ -263,10 +263,6 @@
                     }
                 });
 
-                console.log(client);
-
-
-
                 return client;
             }
         },
@@ -292,13 +288,6 @@
             message: null,
         }),
         methods: {
-            mapClient() {
-                let fields = this.clients.additional_fields;
-                fields = fields.filter(f => {
-                    console.log(f);
-                });
-                return this.client;
-            },
             showTempServiceModal(item) {
                 this.oneTimeServiceModal = true;
                 this.connection_id = item.id;

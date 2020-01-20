@@ -37,14 +37,19 @@ class MobileController extends Controller {
 
     private function sendMessage($phone, $code) {
 
-        $api = new MobizonApi('kze2629bf716d2bff8b28880881e32bdc4e89b33526f76cad0aad9af7c45d964a73444', 'api.mobizon.kz');
+        $api = new MobizonApi(env('MOBIZON_KEY'), 'api.mobizon.kz');
         $_phone = '7' . substr($phone, 1);
-        $api->call('message', 'sendSMSMessage', array('recipient' => $_phone, 'text' => "Код подтверждения ELECOR: " . $code));
+        $api->call('message', 'sendSMSMessage', array('recipient' => $_phone, 'text' => "Код подтверждения ELECOR: " . $code, 'from' => 'ELECOR'));
         return true;
     }
 
     public function messages(Client $client) {
         return MessageResource::collection($client->messages->sortByDesc('created_at'));
+    }
+
+    public function deleteMessage($id) {
+        $message = Message::find($id);
+        $message->delete();
     }
 
     public function updateMessage(Message $message, Request $request) {

@@ -15,7 +15,7 @@ class UserController extends Controller
 {
 
     public function index() {
-        return UserResource::collection(User::where('id', '!=', '0')->get());
+        return UserResource::collection(User::all());
     }
 
     public function store(Request $request)

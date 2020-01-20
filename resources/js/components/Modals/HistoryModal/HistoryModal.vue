@@ -63,6 +63,7 @@
                                     <th>Кассир</th>
                                     <th>Сумма</th>
                                     <th>Основание</th>
+                                    <th>Действие</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -77,6 +78,13 @@
                                     <td>
                                         <span v-if="transaction.sale">{{ transaction.sale }}</span>
                                         <span v-else>Абонентская плата</span>
+                                    </td>
+                                    <td>
+                                        <v-btn icon @click="deleteModal = true; deleteId = transaction.id">
+                                            <v-icon>
+                                                mdi-delete
+                                            </v-icon>
+                                        </v-btn>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -93,21 +101,31 @@
                 </div>
             </v-card-text>
         </v-card>
+        <ConfirmationModal
+            :state="deleteModal"
+            v-on:cancel="deleteModal = false; deleteId = null"
+            v-on:confirm="deleteTransaction"
+            :message="'Вы действительно хотите удалить выбранную транзакцию?'" />
     </v-dialog>
 </template>
 
 <script>
-    import {getHistory} from "../../../api/connection";
+    import {deleteTransaction, getHistory} from "../../../api/connection";
     import moment from 'moment';
     import {MONTHS} from "../../../config/consts";
-
+    import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
+    import showToast from "../../../utils/Toast";
+    import ACTIONS from "../../../store/actions";
     export default {
+        components: {ConfirmationModal},
         data: () => ({
             paymentsSegment: true,
             history: null,
             sum: 0,
             historySegment: false,
             totalSum: null,
+            deleteModal: false,
+            deleteId: null,
             filter: 0,
             dateFilters: [
                 {
@@ -191,31 +209,46 @@
             showHistory() {
                 this.paymentsSegment = false;
                 this.historySegment = true;
+            },
+            async deleteTransaction() {
+                await deleteTransaction(this.deleteId);
+                await this.getClient();
+                await this.modalInit();
+                showToast('Транзакция удалена');
+                this.deleteModal = false;
+                this.deleteId = null;
+            },
+            async getClient() {
+                const id = this.$route.params.userId;
+                await this.$store.dispatch(ACTIONS.GET_CLIENT, id)
+            },
+            async modalInit() {
+                if (this.connection) {
+                    this.history = await getHistory(this.connection);
+                    this.sum = this.history.sum;
+                    this.history.payments = this.history.payments.map(payment => {
+                        if ((this.sum - payment.price) > 0) {
+                            payment.paid = payment.price;
+                        } else {
+                            payment.paid = this.sum;
+                        }
+                        if (this.sum <= 0) {
+                            payment.paid = 0;
+                        }
+                        this.sum -= payment.paid;
+                        let month = moment(payment.created_at).format('MM');
+                        payment.month = MONTHS[month - 1];
+                        return payment;
+                    }).reverse();
+                    this.history.transactions = this.history.transaction.map(transaction => {
+                        transaction.date = moment(transaction.created_at).format('DD.MM.YYYY');
+                        return transaction;
+                    }).reverse();
+                }
             }
         },
         async mounted() {
-            if (this.connection) {
-                this.history = await getHistory(this.connection);
-                this.sum = this.history.sum;
-                this.history.payments = this.history.payments.map(payment => {
-                    if ((this.sum - payment.price) > 0) {
-                        payment.paid = payment.price;
-                    } else {
-                        payment.paid = this.sum;
-                    }
-                    if (this.sum <= 0) {
-                        payment.paid = 0;
-                    }
-                    this.sum -= payment.paid;
-                    let month = moment(payment.created_at).format('MM');
-                    payment.month = MONTHS[month - 1];
-                    return payment;
-                }).reverse();
-                this.history.transactions = this.history.transaction.map(transaction => {
-                    transaction.date = moment(transaction.created_at).format('DD.MM.YYYY');
-                    return transaction;
-                }).reverse();
-            }
+            await this.modalInit();
         }
     }
 </script>

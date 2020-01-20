@@ -26,6 +26,7 @@ Route::middleware(['check_token'])->group(function () {
         Route::patch('update/{client}', 'Api\ClientController@updateClient');
         Route::post('push', 'Api\ClientController@push');
         Route::post('pushes', 'Api\ClientController@pushes');
+        Route::delete('transaction/{transaction}', 'Api\ClientController@deleteTransaction');
         Route::get('parseClients', 'Api\ClientController@parseClients');
     });
 
@@ -74,6 +75,7 @@ Route::middleware(['check_token'])->group(function () {
 
     Route::prefix('mobile')->group(function () {
         Route::post('auth', 'Api\MobileController@sms');
+        Route::delete('message/{message}', 'Api\MobileController@deleteMessage');
         Route::get('client/{client}', 'Api\MobileController@getClientData');
         Route::get('messages/{client}', 'Api\MobileController@messages');
         Route::patch('messages/{message}', 'Api\MobileController@updateMessage');

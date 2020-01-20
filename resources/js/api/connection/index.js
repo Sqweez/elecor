@@ -63,4 +63,8 @@ export async function deleteConnection(connection) {
     });
 }
 
+export async function deleteTransaction(transaction) {
+    await axios.delete(`/api/clients/transaction/${transaction}`);
+}
+
 export default {};

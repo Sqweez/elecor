@@ -16,7 +16,7 @@ class CheckToken
      */
     public function handle($request, Closure $next)
     {
-        //@TODO Убрать заглушку
+         //@TODO Убрать заглушку
 
         return $next($request);
 
