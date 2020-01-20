@@ -18,7 +18,7 @@
                 </div>
                 <div v-else>
                     <client-bio
-                        :client="client" :subjects="subjects"
+                        :client="mapClient" :subjects="subjects"
                         v-on:editToggled="onEdit"
                         v-on:saveToggled="onSave"/>
                     <v-col cols="12">
@@ -239,6 +239,35 @@
             },
             user() {
                 return this.$store.getters.user;
+            },
+            activeFields() {
+                return this.$store.getters.active_fields;
+            },
+            mapClient() {
+
+                const client = {...this.client};
+
+                const fields = this.activeFields.map(a => a.alias);
+
+                let client_fields = [];
+
+                if (client.additional_fields) {
+                    client_fields = Object.keys(client.additional_fields);
+                } else {
+                    client.additional_fields = {};
+                }
+
+                fields.forEach((item, index) => {
+                    if (!client_fields.includes(item)) {
+                        client.additional_fields[item] = '';
+                    }
+                });
+
+                console.log(client);
+
+
+
+                return client;
             }
         },
         data: () => ({
@@ -263,6 +292,13 @@
             message: null,
         }),
         methods: {
+            mapClient() {
+                let fields = this.clients.additional_fields;
+                fields = fields.filter(f => {
+                    console.log(f);
+                });
+                return this.client;
+            },
             showTempServiceModal(item) {
                 this.oneTimeServiceModal = true;
                 this.connection_id = item.id;

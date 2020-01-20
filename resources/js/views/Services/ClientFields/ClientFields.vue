@@ -17,17 +17,20 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr v-for="(item, index) of clientFields" :key="index">
-                                <td>{{ item.name }}</td>
+                            <tr v-for="(item) of fields" :key="item.id">
+                                <td>{{ item.alias }}</td>
                                 <td>
-                                        <span :class="item.status === 1 ? 'green--text' : 'red--text'">
-                                            {{  item.status === 1 ? 'Активно' : 'Неактивно' }}
+                                        <span :class="item.is_active == 1 ? 'green--text' : 'red--text'">
+                                            {{  item.is_active == 1 ? 'Активно' : 'Неактивно' }}
                                         </span>
                                 </td>
                                 <td>
-                                    <v-btn icon>
-                                        <v-icon v-if="item.status === 0">mdi-eye</v-icon>
-                                        <v-icon v-if="item.status === 1">mdi-eye-off</v-icon>
+                                    <v-btn icon @click="changeStatus(item)">
+                                        <v-icon v-if="item.is_active == 0">mdi-eye</v-icon>
+                                        <v-icon v-if="item.is_active == 1">mdi-eye-off</v-icon>
+                                    </v-btn>
+                                    <v-btn icon @click="delete_id = item.id; deleteModal = true;">
+                                        <v-icon>mdi-delete</v-icon>
                                     </v-btn>
                                 </td>
                             </tr>
@@ -38,27 +41,47 @@
             </v-card-text>
         </v-card>
         <AddClientFieldModal :state="showModal" v-on:onClose="showModal = false"/>
+        <ConfirmationModal
+            :state="deleteModal"
+            :message="'Вы действительно хотите удалить выбранное поле?'"
+            v-on:cancel="deleteModal = false; delete_id = null"
+            v-on:confirm="deleteItem"
+        />
     </div>
 </template>
 
 <script>
     import AddClientFieldModal from "../../../components/Modals/AddClientFieldModal/AddClientFieldModal";
+    import ConfirmationModal from "../../../components/Modals/ConfirmationModal/ConfirmationModal";
 
     export default {
-        components: {AddClientFieldModal},
+        components: {ConfirmationModal, AddClientFieldModal},
+        computed: {
+            fields() {
+                return this.$store.getters.get_fields;
+            }
+        },
         data: () => ({
             showModal: false,
-            clientFields: [
-                {
-                    name: 'ИИН/БИН',
-                    status: 1
-                },
-                {
-                    name: 'Доверенный телефон',
-                    status: 0
-                }
-            ]
+            delete_id: null,
+            deleteModal: false,
         }),
+        methods: {
+            async changeStatus(_item) {
+                const item = {
+                    id: _item.id,
+                    is_active: _item.is_active == 1 ? 0 : 1
+                };
+
+                await this.$store.dispatch('changeField', item);
+
+            },
+            async deleteItem() {
+                await this.$store.dispatch('deleteField', this.delete_id);
+                this.delete_id = null;
+                this.deleteModal = false;
+            }
+        }
     }
 </script>
 

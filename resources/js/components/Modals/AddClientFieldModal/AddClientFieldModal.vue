@@ -37,7 +37,8 @@
             title: ''
         }),
         methods: {
-            onSave() {
+            async onSave() {
+                await this.$store.dispatch('createField', {alias: this.title});
                 this.$emit('onClose')
             }
         }

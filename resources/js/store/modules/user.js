@@ -6,6 +6,7 @@ const userModule = {
         user: null,
         users: [],
         roles: [],
+        fields: [],
     },
     getters: {
         isLoggedIn: state => !!state.user,
@@ -14,6 +15,8 @@ const userModule = {
         users: state => state.users,
         user_by_id: state => id => state.users.filter(s => s.id === id)[0],
         get_roles: state => state.roles,
+        get_fields: state => state.fields,
+        active_fields: state => state.fields.filter(s => s.is_active == 1),
     },
     mutations: {
         setUser(state, payload) {
@@ -21,7 +24,7 @@ const userModule = {
             state.token = payload.token;
         },
         logout(state) {
-            state.user = {};
+            state.user = null;
             state.token = '';
         },
         removeToken(state) {
@@ -46,6 +49,23 @@ const userModule = {
         },
         deleteUser(state, payload) {
             state.users = state.users.filter(u => u.id !== payload)
+        },
+        setFields(state, payload) {
+            state.fields = payload;
+        },
+        createField(state, payload) {
+            state.fields.push(payload);
+        },
+        changeField(state, payload) {
+            state.fields = state.fields.map(f => {
+                if (f.id === payload.id) {
+                    f.is_active = payload.is_active;
+                }
+                return f;
+            })
+        },
+        deleteField(state, payload) {
+            state.fields = state.fields.filter(s => s.id !== payload);
         }
     },
     actions: {
@@ -63,6 +83,23 @@ const userModule = {
             localStorage.setItem('token', data.token);
             commit('setUser', data);
             return data;
+        },
+        async getFields({commit}) {
+            const response = await axios.get('/api/fields');
+            commit('setFields', response.data);
+        },
+        async createField({commit}, payload) {
+            payload.is_active = 1;
+            const response = await axios.post(`/api/fields`, payload);
+            commit('createField', response.data);
+        },
+        async changeField({commit}, payload) {
+            await axios.patch(`/api/fields/${payload.id}`, payload);
+            await commit('changeField', payload);
+        },
+        async deleteField({commit}, payload) {
+            await axios.delete(`/api/fields/${payload}`);
+            await commit('deleteField', payload);
         },
         async getUsers({commit}) {
             const {data} = await axios.get('/api/users');

@@ -61,6 +61,13 @@
                         <v-textarea v-if="editMode" class="subject__select" v-model="client.comment"
                                     auto-grow></v-textarea>
                     </div>
+                    <div class="d-flex" v-for="(value, name, index) of client.additional_fields">
+                        <p><span class="font-weight-black">{{ name }}: </span>
+                            <span v-if="!editMode">{{ value }}</span>
+                        </p>
+                        <v-textarea v-if="editMode" class="subject__select" v-model="addFields[index]"
+                                    auto-grow></v-textarea>
+                    </div>
                 </v-col>
                 <v-col cols="4" v-if="user.role_id !== 2">
                     <v-row justify="center">
@@ -82,7 +89,8 @@
                 </v-col>
                 <v-col cols="4">
                     <div class="button-container">
-                        <v-btn block :color="editMode ? 'success' : 'primary'" @click="editUser" :disabled="!valid" v-if="user.role_id === 1 || user.role_id === 3">
+                        <v-btn block :color="editMode ? 'success' : 'primary'" @click="editUser" :disabled="!valid"
+                               v-if="user.role_id === 1 || user.role_id === 3">
                             <span v-if="!editMode">Редактировать</span>
                             <span v-else>Сохранить</span>
                             <v-icon v-if="editMode">mdi-check</v-icon>
@@ -139,6 +147,9 @@
         components: {
             MessageModal, ConnectServiceModal, VTextField, ConfirmationModal
         },
+        mounted() {
+            this.addFields = Object.values(this.client.additional_fields);
+        },
         data: () => ({
             connectKey: 0,
             dummy: Date.now(),
@@ -148,6 +159,7 @@
             showSendModal: false,
             editMode: false,
             newPhoto: '',
+            addFields: [],
             nameRules: [
                 v => !!v || 'Требуется ввести контрагента'
             ],
@@ -171,6 +183,9 @@
                 });
                 return inputs;
             },
+            activeFields() {
+                return this.$store.getters.active_fields;
+            }
         },
         props: {
             client: {
@@ -188,6 +203,16 @@
                 this.$emit('editToggled', {});
             },
             async saveUser() {
+
+                let additional_fields = {...this.addFields};
+
+                Object.keys(additional_fields).forEach((key, index) => {
+                    additional_fields[this.activeFields[index].alias] = additional_fields[index];
+                    delete additional_fields[key];
+                });
+
+                this.client.additional_fields  = JSON.stringify({...additional_fields});
+
                 this.client.phones = this.client.phones
                     .filter(phone => !!phone)
                     .map(phone => phone.replaceAll('-', ''));

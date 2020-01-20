@@ -8,7 +8,6 @@ use App\Http\Resources\UserResource;
 use App\Role;
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 
@@ -16,7 +15,7 @@ class UserController extends Controller
 {
 
     public function index() {
-        return UserResource::collection(User::all());
+        return UserResource::collection(User::where('id', '!=', '0')->get());
     }
 
     public function store(Request $request)

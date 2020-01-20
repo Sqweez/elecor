@@ -33,9 +33,14 @@
                     </template>
                 </v-simple-table>
                 <v-form class="p-2" v-if="!loading && !duplicates.length" v-model="valid">
-                    <v-text-field label="Контрагент" v-model.trim="client.name" :rules="nameRules"></v-text-field>
-                    <v-text-field label="Дата рождения" type="date" v-model="client.birth_date"
-                                  :rules="dateRules"></v-text-field>
+                    <v-text-field label="Контрагент" v-model.trim="client.name" :rules="nameRules" />
+                    <v-text-field
+                        v-for="(field, index) of activeFields"
+                        :label="field.alias"
+                        :key="field.id"
+                        v-model="additionalData[index]"
+                    />
+                    <v-text-field label="Дата рождения" type="date" v-model="client.birth_date" />
                     <v-text-field
                         label="Номер телефона"
                         append-outer-icon="mdi-plus"
@@ -124,6 +129,7 @@
         },
         data: () => ({
             valid: true,
+            additionalData: [],
             duplicates: [],
             client: {
                 phones: [],
@@ -144,10 +150,6 @@
             nameRules: [
                 v => !!v || 'Требуется ввести контрагента'
             ],
-            dateRules: [
-                /*v => !!v || 'Требуется ввести дату рождения',
-                v => (!moment(v).isAfter(moment()) && !moment(v).isBefore(moment([1900, 0, 1]))) || 'Дата рождения не корректна',*/
-            ],
             phoneRules: [
                 v => !!v || 'Требуется ввести телефон'
             ],
@@ -165,6 +167,11 @@
             subjects() {
                 return this.$store.getters.getSubjects;
             },
+            activeFields() {
+                const fields = this.$store.getters.active_fields;
+                this.additionalData = Array(fields.length).fill('');
+                return fields;
+            }
         },
         methods: {
             checkDuplicates() {
@@ -197,7 +204,16 @@
             },
             async createUser() {
                 this.loading = true;
-                console.log(this.client);
+                this.client.additional_fields = {};
+                let additional_fields = {...this.additionalData};
+
+                Object.keys(additional_fields).forEach((key, index) => {
+                    additional_fields[this.activeFields[index].alias] = additional_fields[index];
+                    delete additional_fields[key];
+                });
+
+                this.client.additional_fields  = JSON.stringify({...additional_fields});
+
                 this.client.phones = this.client.phones
                     .filter(phone => !!phone)
                     .map(phone => phone.replaceAll('-', ''));

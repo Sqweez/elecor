@@ -28,6 +28,14 @@ Route::middleware(['check_token'])->group(function () {
         Route::post('pushes', 'Api\ClientController@pushes');
         Route::get('parseClients', 'Api\ClientController@parseClients');
     });
+
+    Route::get('fields', 'Api\FieldController@index');
+    Route::post('fields', 'Api\FieldController@create');
+    Route::patch('fields/{field}', 'Api\FieldController@change');
+
+    Route::delete('fields/{field}', 'Api\FieldController@destroy');
+
+
     Route::resource('clients', 'Api\ClientController');
 
     Route::resource('users', 'Api\UserController');

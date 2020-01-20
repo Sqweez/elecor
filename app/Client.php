@@ -5,7 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 
 class Client extends Model {
-    protected $fillable = ['name', 'client_type', 'birth_date', 'comment', 'photo', 'push_token'];
+    protected $fillable = ['name', 'client_type', 'birth_date', 'comment', 'photo', 'push_token', 'additional_fields'];
 
     public function type() {
         return $this->belongsTo('App\ClientType', 'client_type');
