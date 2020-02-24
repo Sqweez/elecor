@@ -8,7 +8,7 @@
         <v-data-table
             no-data-text="Нет данных"
             no-results-text="Нет результатов"
-            :items="allItems"
+            :items="items"
             :footer-props="{
                 'items-per-page-options': [10, 15, {text: 'Все', value: -1}],
                 'items-per-page-text': 'Записей на странице',
@@ -20,7 +20,7 @@
                 <i>{{ item.body }}</i>
             </template>
             <template v-slot:item.action="{item}">
-                <v-btn icon @click="showDeleteModal = true">
+                <v-btn icon @click="id = item.id; showDeleteModal = true">
                     <v-icon>mdi-delete</v-icon>
                 </v-btn>
             </template>
@@ -31,92 +31,27 @@
         <ConfirmationModal
             :state="showDeleteModal"
             message="'Вы действительно хотите удалить данную рассылку из истории?"
-            v-on:cancel="showDeleteModal = false"
-            v-on:confirm="showDeleteModal = false"/>
+            v-on:cancel="id = null; showDeleteModal = false"
+            v-on:confirm="deleteHistory"/>
     </div>
 </template>
 
 <script>
     import ConfirmationModal from "../../Modals/ConfirmationModal/ConfirmationModal";
     import getRandomArbitrary from "../../../utils/Random";
+    import {deleteHistory, getMailingHistory} from "../../../api/mailing";
+    import showToast from "../../../utils/Toast";
 
     export default {
         components: {ConfirmationModal},
+        async mounted() {
+            this.items = await getMailingHistory();
+        },
         data: () => ({
             showDeleteModal: false,
             search: '',
-            items: [
-                {
-                    title: 'Внимание!',
-                    body: 'Вам необходимо закрыть задолженность до конца текущего месяца, иначе действие нашей охраны будут приостановлены!',
-                    date: '22.10.2019',
-                    recipient_count: 195,
-                    action: null,
-                },
-                {
-                    title: 'Внимание!',
-                    body: 'Вам необходимо закрыть задолженность до конца текущего месяца, иначе действие нашей охраны будут приостановлены!',
-                    date: '22.10.2019',
-                    recipient_count: 195,
-                    action: null,
-                },
-                {
-                    title: 'Внимание!',
-                    body: 'Вам необходимо закрыть задолженность до конца текущего месяца, иначе действие нашей охраны будут приостановлены!',
-                    date: '22.10.2019',
-                    recipient_count: 195,
-                    action: null,
-                },
-                {
-                    title: 'Внимание!',
-                    body: 'Вам необходимо закрыть задолженность до конца текущего месяца, иначе действие нашей охраны будут приостановлены!',
-                    date: '22.10.2019',
-                    recipient_count: 195,
-                    action: null,
-                },
-                {
-                    title: 'Внимание!',
-                    body: 'Вам необходимо закрыть задолженность до конца текущего месяца, иначе действие нашей охраны будут приостановлены!',
-                    date: '22.10.2019',
-                    recipient_count: 195,
-                    action: null,
-                },
-                {
-                    title: 'Внимание!',
-                    body: 'Вам необходимо закрыть задолженность до конца текущего месяца, иначе действие нашей охраны будут приостановлены!',
-                    date: '22.10.2019',
-                    recipient_count: 195,
-                    action: null,
-                },
-                {
-                    title: 'Внимание!',
-                    body: 'Вам необходимо закрыть задолженность до конца текущего месяца, иначе действие нашей охраны будут приостановлены!',
-                    date: '22.10.2019',
-                    recipient_count: 195,
-                    action: null,
-                },
-                {
-                    title: 'Внимание!',
-                    body: 'Вам необходимо закрыть задолженность до конца текущего месяца, иначе действие нашей охраны будут приостановлены!',
-                    date: '22.10.2019',
-                    recipient_count: 195,
-                    action: null,
-                },
-                {
-                    title: 'Внимание!',
-                    body: 'Вам необходимо закрыть задолженность до конца текущего месяца, иначе действие нашей охраны будут приостановлены!',
-                    date: '22.10.2019',
-                    recipient_count: 195,
-                    action: null,
-                },
-                {
-                    title: 'Внимание!',
-                    body: 'Вам необходимо закрыть задолженность до конца текущего месяца, иначе действие нашей охраны будут приостановлены!',
-                    date: '22.10.2019',
-                    recipient_count: 195,
-                    action: null,
-                },
-            ],
+            items: [],
+            id: null,
             headers: [
                 {
                     text: 'Заголовок',
@@ -138,7 +73,7 @@
                 },
                 {
                     text: 'Автор',
-                    value: 'author',
+                    value: 'user',
                     sortable: false,
                 },
                 {
@@ -149,12 +84,14 @@
             ]
         }),
         computed: {
-            allItems() {
-                return this.items.map(item => {
-                   const num = getRandomArbitrary(1, 100);
-                   item.author = num > 50 ? 'Автоматическая рассылка' : 'Администратор';
-                   return item;
-                });
+        },
+        methods: {
+            async deleteHistory() {
+                await deleteHistory(this.id);
+                this.items = this.items.filter(i => i.id !== this.id);
+                this.id = null;
+                this.showDeleteModal = false;
+                showToast('Рассылка успешно удалена!');
             }
         }
     }

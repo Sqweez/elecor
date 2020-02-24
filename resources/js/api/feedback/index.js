@@ -13,3 +13,4 @@ export async function getCount() {
     const {data} = await axios.get('/api/feedbacks');
     return data;
 }
+

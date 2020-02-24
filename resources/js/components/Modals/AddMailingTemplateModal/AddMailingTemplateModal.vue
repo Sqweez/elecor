@@ -2,7 +2,7 @@
     <v-dialog max-width="800" persistent v-model="state">
         <v-card>
             <v-card-title class="blue darken-1 d-flex justify-content-between">
-                <span class="white--text">{{ title }}</span>
+                <span class="white--text">{{ id === null ? 'Добавление' : 'Редактирование' }} шаблона</span>
                 <v-btn icon @click="$emit('onClose')">
                     <v-icon color="white">mdi-close</v-icon>
                 </v-btn>
@@ -10,7 +10,7 @@
             <v-card-text>
                 <v-form class="p-3" v-if="!loading">
                     <v-text-field v-model="name" label="Наименование шаблона"></v-text-field>
-                    <v-text-field v-model="header" label="Заголовок"></v-text-field>
+                    <v-text-field v-model="title" label="Заголовок"></v-text-field>
                     <v-textarea
                         auto-grow rows="5"
                         counter
@@ -31,7 +31,7 @@
                     <v-divider></v-divider>
                     <v-flex class="mt-2">
                         <h3>Предпросмотр шаблона:</h3>
-                        <h4>{{ this.header }}</h4>
+                        <h4>{{ this.title }}</h4>
                         <p>{{ this.message }}</p>
                     </v-flex>
                 </v-form>
@@ -40,7 +40,7 @@
             <v-card-actions v-if="!loading">
                 <v-btn @click="$emit('onClose')" text>Отмена</v-btn>
                 <v-spacer></v-spacer>
-                <v-btn @click="onSave" text color="success">
+                <v-btn @click="onSubmit" text color="success">
                     Сохранить
                     <v-icon>mdi-check</v-icon>
                 </v-btn>
@@ -57,6 +57,8 @@
 </template>
 
 <script>
+    import showToast from "../../../utils/Toast";
+
     String.prototype.replaceAll = function(search, replacement) {
         let target = this;
         return target.split(search).join(replacement);
@@ -67,13 +69,9 @@
                 type: Boolean,
                 default: false,
             },
-            title: {
-                type: String,
-                default: 'Добавление шаблона'
-            },
-            editMode: {
-                type: Boolean,
-                default: false
+            id: {
+                type: Number,
+                default: null
             }
         },
         computed: {
@@ -86,17 +84,23 @@
                 return outputMessage;
             }
         },
-        mounted() {
-          if (this.editMode) {
-              this.header = 'Внимание!';
-              this.name = 'Долговой шаблон';
-              this.body = 'Уважаемый, %ИМЯ% оплатите долг, пожалуйста!'
-          }
+        watch: {
+            state() {
+                this.name = '';
+                this.title = '';
+                this.body = '';
+                if (this.id !== null) {
+                    const template = this.$store.getters.mailing_template(this.id);
+                    this.name = template.name;
+                    this.title = template.title;
+                    this.body = template.body;
+                }
+            }
         },
         data: () => ({
             loading: false,
             name: '',
-            header: '',
+            title: '',
             body: '',
             variables: [
                 {
@@ -104,19 +108,46 @@
                     name: 'Имя клиента',
                     example: 'Александр Андреевич'
                 },
-                {
+                /*{
                     key: '%ДОЛГ%',
                     name: 'Задолженность',
                     example: '5000'
-                },
+                },*/
             ],
         }),
         methods: {
-            onSave() {
-                this.loading = true;
-                setTimeout(() => {
-                    this.$emit('onSave');
-                }, 3000);
+            async onSubmit() {
+              this.loading = true;
+              if (this.id === null) {
+                  await this.createTemplate();
+              } else {
+                  await this.editTemplate();
+              };
+              this.$emit('onClose');
+              this.loading = false;
+            },
+            async createTemplate() {
+                const template = {
+                    title: this.title,
+                    body: this.body,
+                    name: this.name
+                };
+
+                await this.$store.dispatch('createMailingTemplates', template);
+
+                showToast('Шаблон успешно создан!');
+            },
+            async editTemplate() {
+                const template = {
+                    id: this.id,
+                    title: this.title,
+                    body: this.body,
+                    name: this.name
+                };
+
+                await this.$store.dispatch('editMailingTemplates', template);
+
+                showToast('Шаблон успешно отредактирован!');
             },
             addVariableToTemplate(variable) {
                 this.body += variable.key;

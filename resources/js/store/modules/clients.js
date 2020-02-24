@@ -4,7 +4,7 @@ import {
     editClient,
     getAllClients,
     getClientById,
-    getClientTypes
+    getClientTypes, getDebts
 } from "../../api/client/clientApi";
 import ACTIONS from "../actions";
 import MUTATIONS from "../mutations";
@@ -23,6 +23,7 @@ const clientsModule = {
         subjects: [],
         clients: null,
         client: null,
+        debts: [],
     },
     getters: {
         [GETTERS.CLIENTS](state) {
@@ -64,6 +65,7 @@ const clientsModule = {
             });
             return duplicates;
         },
+        debts: state => state.debts,
     },
     mutations: {
         [MUTATIONS.SET_CLIENTS](state, payload) {
@@ -84,7 +86,9 @@ const clientsModule = {
             state.clients.push(payload);
         },
         [MUTATIONS.DELETE_USER](state, payload) {
-            state.clients = state.clients.filter(c => c.id != payload)
+            if (state.clients) {
+                state.clients = state.clients.filter(c => c.id != payload)
+            }
         },
         [MUTATIONS.EDIT_USER](state, payload) {
             state.client = payload;
@@ -134,6 +138,9 @@ const clientsModule = {
             state.client.connections = state.client.connections.filter(c => {
                 return c.id !== payload;
             })
+        },
+        setDebts (state, payload) {
+            state.debts = payload;
         }
     },
     actions: {
@@ -197,6 +204,10 @@ const clientsModule = {
         async [ACTIONS.DELETE_CONNECTION] ({commit}, payload) {
             await deleteConnection(payload);
             await commit(MUTATIONS.DELETE_CONNECTION, payload);
+        },
+        async getDebts({commit}) {
+            const response = await getDebts();
+            commit('setDebts', response.debts);
         }
     }
 };

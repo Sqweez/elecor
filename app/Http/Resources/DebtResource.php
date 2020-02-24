@@ -38,6 +38,9 @@ class DebtResource extends JsonResource
             '_trademarks' => join(' ', array_map(function ($i) {
                 return $i['trademark'];
             }, $connections)),
+            'personal_accounts' => $this->connections->where('is_deleted', false)->pluck('personal_account'),
+            'addresses' => $this->connections->where('is_deleted', false)->pluck('address'),
+            'trademarks' => $this->connections->where('is_deleted', false)->pluck('trademark'),
         ];
     }
 }

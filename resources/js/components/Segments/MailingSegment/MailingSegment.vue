@@ -1,14 +1,29 @@
 <template>
     <div>
-        <v-form class="p-3">
-            <v-select label="Тип отправки" :items="sendingTypes"></v-select>
+        <div
+            v-if="$store.getters.debts.length === 0"
+            class="text-center d-flex align-items-center justify-content-center"
+            style="min-height: 651px">
+            <v-progress-circular
+                indeterminate
+                size="65"
+                color="primary"
+            ></v-progress-circular>
+        </div>
+        <v-form class="p-3" v-else>
+            <v-select
+                v-model="sendType"
+                item-value="id"
+                item-text="name"
+                label="Тип отправки"
+                :items="sendingTypes"/>
             <v-flex>
                 <v-select
                     v-if="!isFreeTemplate"
                     label="Шаблон"
                     :items="templates"
-                    item-text="title"
-                    item-value="title"
+                    item-text="name"
+                    item-value="id"
                     v-model="currentTemplate"
                 />
                 <v-checkbox
@@ -32,7 +47,7 @@
             </v-flex>
             <v-select label="Группа клиентов" :items="clientGroups" v-model="clientGroup"></v-select>
             <v-data-table
-                item-key="_id"
+                item-key="id"
                 show-select
                 v-if="clientGroup"
                 no-results-text="Нет результатов"
@@ -46,19 +61,19 @@
                 :search="search"
                 v-model="selected"
             >
-                <template v-slot:item.personalAccount="{ item }">
+                <template v-slot:item.personal_accounts="{ item }">
                     <ul>
-                        <li v-for="(i, index) of item.personalAccount" :key="index">{{ i }}</li>
+                        <li v-for="(i, index) of item.personal_accounts" :key="index">{{ i }}</li>
                     </ul>
                 </template>
-                <template v-slot:item.address="{ item }">
+                <template v-slot:item.addresses="{ item }">
                     <ul>
-                        <li v-for="(i, index) of item.address" :key="index">{{ i }}</li>
+                        <li v-for="(i, index) of item.addresses" :key="index">{{ i }}</li>
                     </ul>
                 </template>
-                <template v-slot:item.trademark="{ item }">
+                <template v-slot:item.trademarks="{ item }">
                     <ul>
-                        <li v-for="(i, index) of item.trademark" :key="index">{{ i }}</li>
+                        <li v-for="(i, index) of item.trademarks" :key="index">{{ i }}</li>
                     </ul>
                 </template>
                 <template slot="footer.page-text" slot-scope="{pageStart, pageStop, itemsLength}">
@@ -74,20 +89,22 @@
                 <h4>{{ this.title }}</h4>
                 <p>{{ this.message }}</p>
             </v-flex>
-            <v-btn color="primary" @click="showModal = true">Отправить рассылку</v-btn>
+            <v-btn color="primary" @click="showModal = true" v-if="selected.length">Отправить рассылку</v-btn>
         </v-form>
         <ConfirmationModal
             :state="showModal"
             v-on:cancel="showModal = false"
             v-on:confirm="sendMailing"
-            message="Вы действительно хотите отправить эту рассылку?" />
+            message="Вы действительно хотите отправить эту рассылку?"/>
     </div>
 </template>
 
 <script>
     import ConfirmationModal from "../../Modals/ConfirmationModal/ConfirmationModal";
     import showToast from "../../../utils/Toast";
-    String.prototype.replaceAll = function(search, replacement) {
+    import {sendMailing} from "../../../api/mailing";
+
+    String.prototype.replaceAll = function (search, replacement) {
         let target = this;
         return target.split(search).join(replacement);
     };
@@ -97,27 +114,35 @@
             addVariableToTemplate(variable) {
                 this.body += variable.key;
             },
-            sendMailing() {
+            async sendMailing() {
+                const mailing = {
+                    title: this.title,
+                    body: this.body,
+                    clients: this.selected.map(s => s.id),
+                    sendType: this.sendType
+                };
                 this.showModal = false;
-                showToast('Успех', 'Рассылка была отправлена');
+                await sendMailing(mailing);
+                showToast('Рассылка была отправлена');
             }
         },
         data: () => ({
             showModal: false,
             sendingTypes: [
-                'Все', 'SMS', 'Пуш-уведомления'
+                {id: 0, name: 'Все'}, {id: 1, name: 'SMS'}, {id: '2', name: 'Пуш-уведомления'}
             ],
+            sendType: 2,
             variables: [
                 {
                     key: '%ИМЯ%',
                     name: 'Имя клиента',
                     example: 'Александр Андреевич'
                 },
-                {
+              /*  {
                     key: '%ДОЛГ%',
                     name: 'Задолженность',
                     example: '5000'
-                },
+                },*/
             ],
             methods: {
                 addVariableToTemplate(variable) {
@@ -132,40 +157,39 @@
                     text: 'Контрагент',
                     align: 'left',
                     sortable: false,
-                    value: 'fullName',
+                    value: 'name',
                 },
-                {text: 'Лицевой счет', value: 'personalAccount', sortable: false},
-                {text: 'Адрес', value: 'address', sortable: false},
-                {text: 'Торговое наименование', value: 'trademark', sortable: false}
+                {text: 'Лицевой счет', value: 'personal_accounts', sortable: false},
+                {text: 'Адрес', value: 'addresses', sortable: false},
+                {text: 'Торговое наименование', value: 'trademarks', sortable: false}
             ],
             isFreeTemplate: false,
             clientGroup: null,
             clientGroups: [
-                'Все', 'Задолжники', 'Именинники'
+                'Все', 'Должники'
             ],
             title: '',
             body: '',
-            templates: [
-                {
-                    title: 'День рождения',
-                    body: 'Уважаемый, %ИМЯ%! Поздравляем вас с днем рождения!',
-                    action: null,
-                },
-                {
-                    title: 'Долг',
-                    body: 'Уважаемый, %ИМЯ%! Поздравляем вас с днем рождения!',
-                    action: null,
-                },
-                {
-                    title: 'Новый год',
-                    body: 'Уважаемый, %ИМЯ%! Поздравляем вас с днем рождения!',
-                    action: null,
-                }
-            ],
         }),
+        watch: {
+            currentTemplate() {
+                const template = this.$store.getters.mailing_template(this.currentTemplate)
+                this.body = template.body;
+                this.title = template.title;
+                return template;
+            }
+        },
         computed: {
             clients() {
-                return this.$store.getters.allClients;
+                let clients = [];
+                if (this.clientGroup === 'Все') {
+                    clients = this.$store.getters.allClients;
+
+                } else {
+                    clients =  this.$store.getters.debts;
+                }
+                this.selected = [...clients];
+                return clients;
             },
             message() {
                 let outputMessage = this.body;
@@ -174,7 +198,10 @@
                 });
 
                 return outputMessage;
-            }
+            },
+            templates() {
+                return this.$store.getters.mailing_templates;
+            },
         }
     }
 </script>

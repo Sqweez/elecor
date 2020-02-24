@@ -17,6 +17,10 @@ Route::post('auth', 'Api\UserController@auth');
 Route::middleware(['check_token'])->group(function () {
     Route::get('test', 'Api\ClientController@test');
 
+    Route::resource('mailing_history', 'Api\MailingHistoryController');
+    Route::resource('mailing_templates', 'Api\MailingTemplateController');
+    Route::post('mailing', 'Api\MailingController@mailing');
+
     Route::prefix('clients')->group(function () {
         Route::get('debt', 'Api\ClientController@getDebt');
         Route::get('types', 'Api\ClientController@getTypes');

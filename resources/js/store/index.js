@@ -9,18 +9,19 @@ import feedbackModule from "./modules/feedback";
 import stockModule from "./modules/stocks";
 import mobileServiceModule from './modules/mobile_services'
 import userModule from "./modules/user";
+import mailingModule from "./modules/mailing";
 Vue.use(Vuex);
 
 const store = new Store({
     state: {},
     mutations: {},
     actions: {
-        async [ACTIONS.INIT]({dispatch}) {
-            await dispatch('getFields');
-            await dispatch(ACTIONS.GET_CLIENT_TYPES);
-            await dispatch('getUsers');
-            await dispatch(ACTIONS.GET_SERVICES);
-            await dispatch(ACTIONS.GET_CLIENTS);
+        [ACTIONS.INIT]({dispatch}) {
+            dispatch('getFields');
+            dispatch(ACTIONS.GET_CLIENT_TYPES);
+            dispatch('getUsers');
+            dispatch(ACTIONS.GET_SERVICES);
+            dispatch(ACTIONS.GET_CLIENTS);
         }
     },
     modules: {
@@ -31,7 +32,8 @@ const store = new Store({
         feedbackModule: feedbackModule,
         stocksModule: stockModule,
         mobileServiceModule: mobileServiceModule,
-        userModule: userModule
+        userModule: userModule,
+        mailingModule: mailingModule
     }
 });
 

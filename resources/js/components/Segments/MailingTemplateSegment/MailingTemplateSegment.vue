@@ -11,10 +11,10 @@
                 'items-per-page-text': 'Записей на странице',
             }"
             :headers="headers"
-            :items="items"
+            :items="templates"
             :search="search">
             <template v-slot:item.action="{item}">
-                <v-btn icon @click="showEditModal = true">
+                <v-btn icon @click="id = item.id; showAddModal = true;">
                     <v-icon>mdi-pencil</v-icon>
                 </v-btn>
                 <v-btn icon>
@@ -27,14 +27,9 @@
         </v-data-table>
         <AddMailingTemplateModal
             :state="showAddModal"
-            v-on:onClose="showAddModal = false"
-            v-on:onSave="onSave"/>
-        <AddMailingTemplateModal
-            title="Редактирование шаблона"
-            :state="showEditModal"
-            :edit-mode="true"
-            v-on:onClose="showEditModal = false"
-            v-on:onSave="onEdit"/>
+            :id="id"
+            v-on:onClose="id = null; showAddModal = false"
+           />
         <ConfirmationModal
             :state="showDeleteModal"
             v-on:confirm="showDeleteModal = false"
@@ -52,35 +47,25 @@
     export default {
         components: {ConfirmationModal, AddMailingTemplateModal},
         methods: {
-            onEdit() {
+            async onEdit() {
                 this.showEditModal = false;
                 showToast('', 'Шаблон успешно изменен!')
             },
-            onSave() {
+            async onSave() {
                 this.showAddModal = false;
                 showToast('', 'Шаблон успешно добавлен!');
             }
         },
+        computed: {
+            templates() {
+                return this.$store.getters.mailing_templates;
+            }
+        },
         data: () => ({
+            id: null,
             showEditModal: false,
             showAddModal: false,
-            items: [
-                {
-                    title: 'День рождения',
-                    body: 'Уважаемый, %ИМЯ%! Поздравляем вас с днем рождения!',
-                    action: null,
-                },
-                {
-                    title: 'День рождения',
-                    body: 'Уважаемый, %ИМЯ%! Поздравляем вас с днем рождения!',
-                    action: null,
-                },
-                {
-                    title: 'День рождения',
-                    body: 'Уважаемый, %ИМЯ%! Поздравляем вас с днем рождения!',
-                    action: null,
-                }
-            ],
+            showDeleteModal: false,
             headers: [
                 {
                     text: 'Наименование шаблона',

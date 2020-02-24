@@ -98,9 +98,8 @@ class MobileController extends Controller {
     }
 
     private function storeMessage($message) {
-        $mailing_id = $this->getMailingId();
         $_message = $message;
-        $_message['mailing_id'] = $mailing_id;
+        $_message['mailing_id'] = 0;
         $mailing = Message::create($_message);
         return $mailing;
     }

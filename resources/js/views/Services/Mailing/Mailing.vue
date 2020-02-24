@@ -42,6 +42,10 @@
         data: () => ({
             currentSegment: 'mailing'
         }),
+        async mounted() {
+            await this.$store.dispatch('getDebts');
+            await this.$store.dispatch('getMailingTemplates');
+        },
     }
 </script>
 
