@@ -41,6 +41,10 @@
             <template v-slot:item.type="{item}">
                 <span>{{item.service_id === null ? `Акция` : `Баннер: ${item.service}`}}</span>
             </template>
+            <template v-slot:item.status="{item}">
+                <h4 class="green--text" v-if="item.is_visible">Показывается</h4>
+                <h4 class="red--text" v-else>Скрыто</h4>
+            </template>
             <template v-slot:item.action="{item}">
                 <v-btn icon @click="showHideModal(item)">
                     <v-icon v-if="!item.is_visible">mdi-eye</v-icon>
@@ -123,6 +127,11 @@
                     {
                         text: 'Тип',
                         value: 'type',
+                        sortable: false
+                    },
+                    {
+                        text: 'Статус',
+                        value: 'status',
                         sortable: false
                     },
                     {

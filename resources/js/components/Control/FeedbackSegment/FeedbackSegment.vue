@@ -41,13 +41,26 @@
                     <v-btn color="primary" @click="showModal(item)">Ответить
                         <v-icon>mdi-message</v-icon>
                     </v-btn>
+                    <v-btn color="success" @click="currentFeedback = item; confirmModal = true;">
+                        Обработано
+                        <v-icon>mdi-check</v-icon>
+                    </v-btn>
                 </div>
             </template>
             <template slot="footer.page-text" slot-scope="{pageStart, pageStop, itemsLength}">
                 {{ pageStart }}-{{ pageStop }} из {{ itemsLength }}
             </template>
         </v-data-table>
-        <MessageModal :state="showMessageModal" v-on:modalClosed="closeMessageModal" v-on:sendMessage="sendMessage"/>
+        <MessageModal
+            :state="showMessageModal"
+            v-on:modalClosed="closeMessageModal"
+            v-on:sendMessage="sendMessage"/>
+        <ConfirmationModal
+            :state="confirmModal"
+            message="Отметить данную заявку как обработанную?"
+            v-on:cancel="confirmModal = false; currentFeedback = null"
+            v-on:confirm="onConfirm"
+        />
     </div>
 </template>
 
@@ -56,9 +69,10 @@
     import {sendPushToClient} from "../../../api/client/clientApi";
     import ACTIONS from "../../../store/actions";
     import showToast from "../../../utils/Toast";
+    import ConfirmationModal from "../../Modals/ConfirmationModal/ConfirmationModal";
 
     export default {
-        components: {MessageModal},
+        components: {ConfirmationModal, MessageModal},
         computed: {
             feedbacks() {
                 return this.$store.getters.feedback;
@@ -85,6 +99,7 @@
             search: '',
             currentFeedback: null,
             showMessageModal: false,
+            confirmModal: false,
         }),
         methods: {
             showModal(e) {
@@ -104,12 +119,17 @@
                 await sendPushToClient(push);
                 await this.changeFeedbackStatus(e.body);
             },
-            async changeFeedbackStatus(message) {
+            async changeFeedbackStatus(message = null) {
                 await this.$store.dispatch(ACTIONS.CHANGE_FEEDBACK_STATUS,
                     {id: this.currentFeedback.id, answer: message, is_worked: true, user_id: this.$store.getters.user.id}
                 );
                 this.showMessageModal = false;
                 showToast('Заявка обработана');
+            },
+            async onConfirm() {
+                await this.changeFeedbackStatus();
+                this.confirmModal = false;
+                this.currentFeedback = null;
             }
         }
     }
