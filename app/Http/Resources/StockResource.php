@@ -20,7 +20,7 @@ class StockResource extends JsonResource
             'title' => $this->title,
             'body' => $this->body,
             'date' => Carbon::parse($this->created_at)->format('d.m.Y'),
-            'is_visible' => $this->is_visible,
+            'is_visible' => !!$this->is_visible,
             'image' => $this->image,
             'service' => $this->service->name ?? null,
             'service_id' => $this->service_id

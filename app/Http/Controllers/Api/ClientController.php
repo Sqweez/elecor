@@ -295,16 +295,18 @@ class ClientController extends Controller {
     }
 
     public function getDebt() {
-        $debts = DebtResource::collection(Client::all())->toArray(Client::all());
+        $debts = DebtResource::collection(Client::all());
         $total_debt = 0;
-        $debts = array_values(array_filter($debts, function ($arr) {
-            return $arr['id'] > -1;
-        }));
-        foreach ($debts as $debt) {
-            foreach ($debt['connections'] as $connection) {
-                $total_debt += $connection['debt'];
-            }
-        }
+
+        $debts = collect($debts)->filter(function($i) {
+            return $i !== null;
+        })->values();
+
+        $total_debt = collect($debts)->reduce(function ($a, $c) {
+            return $a + collect($c['connections'])->reduce(function ($a, $c) {
+                return $a + $c['debt'];
+            }, 0);
+        }, 0);
 
         $data = [
             'debts' => $debts,

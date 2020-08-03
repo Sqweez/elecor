@@ -11,7 +11,6 @@ use App\Sale;
 use App\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class ConnectionController extends Controller {
 
@@ -51,7 +50,7 @@ class ConnectionController extends Controller {
 
     public function getDuplicate(Request $request) {
         $account = $request->get('personal_account');
-        $result = Connection::where(['personal_account' => $account,'is_deleted' => false])->get();
+        $result = Connection::where(['personal_account' => $account, 'is_deleted' => false])->get();
         return count($result);
     }
 
@@ -96,6 +95,34 @@ class ConnectionController extends Controller {
         $account = preg_replace('/\s+/', '', $account);
         $account = Connection::where('personal_account', $account)->with('client')->first();
         return $account;
+    }
+
+    public function destroyDupls() {
+        $connections = Connection::all();
+        $m = [];
+        foreach ($connections as $value) {
+            $m[$value['personal_account']][] = $value;
+        }
+        foreach ($m as $item) {
+            if (count($item) > 1) {
+                foreach ($item as $value) {
+                    echo $value['id'] . PHP_EOL;
+                }
+                echo "-------" . PHP_EOL;
+            }
+            /*if (count($item) > 1) {
+                for ($i = 1; $i < count($item); $i++) {
+                    $connection_id = $item[$i]['id'];
+                    Connection::find($connection_id)->delete();
+                    $transaction = Transaction::where('connection_id', $connection_id)->first();
+                    if ($transaction) {
+                        $transaction->delete();
+                    }
+                }
+                echo "-------" . PHP_EOL;
+            }*/
+
+        }
     }
 
 }

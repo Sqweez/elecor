@@ -3,6 +3,10 @@
         <v-card-title>
             {{ title }}
         </v-card-title>
+        <v-overlay v-model="overlay">
+            <v-progress-circular indeterminate size="48" color="primary">
+            </v-progress-circular>
+        </v-overlay>
         <v-card-text>
             <div class="clients-details">
                 <h4>
@@ -12,7 +16,7 @@
                     Добавить клиента
                     <v-icon>mdi-account-plus</v-icon>
                 </v-btn>
-                <v-btn color="success" class="button-add" v-if="user.role_id === 3">
+                <v-btn color="success" class="button-add" v-if="user.role_id === 3" @click="exportClientModal = true">
                     Экспорт клиентов
                     <v-icon>mdi-file-excel-box</v-icon>
                 </v-btn>
@@ -93,6 +97,7 @@
         <ImportClientsModal :state="showImportModal" v-on:onClose="showImportModal = false"
                             v-on:onSave="onClientImported"/>
         <ParseBalanceModal :state="showParseBalanceModal" v-on:onClose="showParseBalanceModal = false" v-on:onSave="onBalanceImported" />
+        <ExportClientsModal :state="exportClientModal" v-on:cancel="exportClientModal = false;" v-on:submit="onExportSubmit"/>
     </v-card>
 </template>
 
@@ -103,8 +108,10 @@
     import ImportClientsModal from "../Modals/ImportClientsModal/ImportClientsModal";
     import GETTERS from "../../store/getters";
     import ParseBalanceModal from "../Modals/ParseBalanceModal/ParseBalanceModal";
+    import ExportClientsModal from "../Modals/ExportClientsModal/ExportClientsModal";
+    import axios from 'axios';
     export default {
-        components: {AddClientModal, ImportClientsModal, ParseBalanceModal},
+        components: {ExportClientsModal, AddClientModal, ImportClientsModal, ParseBalanceModal},
         props: {
             title: {
                 type: String,
@@ -120,6 +127,8 @@
             showLoader: false,
             search: '',
             showParseBalanceModal: false,
+            exportClientModal: false,
+            overlay: false,
             headers: [
                 {
                     text: 'Контрагент',
@@ -172,6 +181,15 @@
             onBalanceImported() {
                 this.showParseBalanceModal = false;
                 showToast('Данные по балансу успешно обновлены!');
+            },
+            async onExportSubmit(e) {
+                this.exportClientModal = false;
+                this.overlay = true;
+                const { data } = await axios.get(`/api/export/clients?variant=${e}`);
+                const link = document.createElement('a');
+                link.href = data;
+                link.click();
+                this.overlay = false;
             }
         }
     }

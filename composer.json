@@ -14,8 +14,7 @@
         "laravel/tinker": "^1.0",
         "maatwebsite/excel": "^3.1",
         "mobizon/mobizon-php": "^2.0",
-        "phpoffice/phpspreadsheet": "^1.9",
-        "ext-http": "*"
+        "phpoffice/phpspreadsheet": "^1.9"
     },
     "require-dev": {
         "facade/ignition": "^1.4",

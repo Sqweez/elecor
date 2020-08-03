@@ -21,7 +21,7 @@ class MailingController extends Controller {
 
     public function mailing(Request $request) {
         $clients = $request->get('clients');
-        $sendType = $request->get('sendType');
+        $sendType = intval($request->get('sendType'));
         $title = $request->get('title');
         $body = $request->get('body');
 
@@ -45,9 +45,8 @@ class MailingController extends Controller {
         foreach ($ids as $id) {
             $client = Client::find($id);
             $message = $this->parseTemplate($client, $title, $body);
-            if ($client['token']) {
-                echo "1";
-                $this->push($message, $client['token']);
+            if ($client['push_token']) {
+                $this->push($message, $client['push_token']);
             } else {
                 $phone = Phone::where('client_id', $id)->first()['phone'];
                 $this->sms($message, $phone);
@@ -70,8 +69,8 @@ class MailingController extends Controller {
         foreach ($ids as $id) {
             $client = Client::find($id);
             $message = $this->parseTemplate($client, $title, $body);
-            if ($client['token']) {
-                $this->push($message, $client['token']);
+            if ($client['push_token']) {
+                $this->push($message, $client['push_token']);
                 $this->storeMessage($message, $mailing_id, $id);
             }
         }
