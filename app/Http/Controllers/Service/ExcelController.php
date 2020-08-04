@@ -60,26 +60,29 @@ class ExcelController extends Controller {
         $title = "";
 
         switch ($exportVariant) {
-            case 1: {
+            case 1:
                 $title = 'Все клиенты';
                 break;
-            }
-            case 2: {
+            case 2:
                 $title = 'Клиент подключенные к МТК';
                 break;
-            }
-            case 3: {
+            case 3:
                 $title = 'Клиенты подключенные к МТК без дебиторской задолженности';
                 break;
-            }
+            case 4:
+                $title = 'Клиенты подключенные к МТК без дебиторской задолженности и с тарифом 2000';
+                break;
             default:
                 break;
         }
+
 
         $clients = json_decode($json_data, true);
 
         $spreadSheet = IOFactory::load(storage_path('app/public/clients_template.xlsx'));
         $sheet = $spreadSheet->getActiveSheet();
+        $sheet->setCellValue('A1', $title);
+
 
         collect($clients)->each(function ($item, $key) use ($sheet) {
             $initialIndex = 3;

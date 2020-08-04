@@ -34,6 +34,16 @@ class ExportController extends Controller {
                     return !$debts->contains($i['id']);
                 })->values()->all();
                 break;
+            case 4:
+                $debts = DebtResource::collection(Client::find(Connection::where('service_id', 5)->get()->pluck('client_id')));
+                $debts = collect($debts)->filter(function($i) {
+                    return $i !== null;
+                })->values()->pluck('id');
+                $all_clients_with_mtk = ClientsResource::collection(Client::find(Connection::where('service_id', 5)->where('price', 2000)->where('is_active', 1)->get()->pluck('client_id')));
+                $clients = $all_clients_with_mtk->filter(function ($i) use ($debts) {
+                    return !$debts->contains($i['id']);
+                })->values()->all();
+                break;
             default:
                 break;
         }

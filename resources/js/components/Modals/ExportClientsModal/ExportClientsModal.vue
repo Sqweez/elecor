@@ -2,7 +2,7 @@
     <v-dialog max-width="600" persistent v-model="state">
         <v-card>
             <v-card-title class="headline blue darken-1 justify-content-between">
-                <span class="white--text">Подключение новой услуги</span>
+                <span class="white--text">Экспорт клиентов</span>
                 <v-btn icon text class="float-right">
                     <v-icon color="white" @click="$emit('cancel')">
                         mdi-close
@@ -45,6 +45,10 @@
                     text: 'МТК без долгов',
                     value: 3
                 },
+                {
+                    text: 'МТК с тарифом 2000, активные, без долгов',
+                    value: 4
+                }
             ]
         }),
         methods: {},
