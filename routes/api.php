@@ -16,6 +16,7 @@
 
 Route::post('auth', 'Api\UserController@auth');
 Route::get('export/clients', 'Api\ExportController@exportClients');
+Route::get('export/debts', 'Api\ExportController@exportDebts');
 
 Route::middleware(['check_token'])->group(function () {
     Route::get('test', 'Api\ClientController@test');
@@ -34,7 +35,6 @@ Route::middleware(['check_token'])->group(function () {
         Route::post('push', 'Api\ClientController@push');
         Route::post('pushes', 'Api\ClientController@pushes');
         Route::delete('transaction/{transaction}', 'Api\ClientController@deleteTransaction');
-        //Route::get('parseClients', 'Api\ClientController@parseClients');
     });
 
     Route::get('fields', 'Api\FieldController@index');

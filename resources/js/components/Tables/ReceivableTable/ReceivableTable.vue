@@ -1,5 +1,9 @@
 <template>
     <div>
+        <v-overlay v-model="overlay">
+            <v-progress-circular indeterminate size="48" color="primary">
+            </v-progress-circular>
+        </v-overlay>
         <v-card>
             <v-card-title>
                 Дебиторская задолженность
@@ -18,7 +22,7 @@
                 <div v-if="clients !== null">
                     <h3>Общая задолженность: {{total_debt * -1}} тенге</h3>
                     <v-divider class="mt-4"></v-divider>
-                    <v-btn color="primary mt-4" v-if="user.role_id !== 2">Экспорт данных
+                    <v-btn color="primary mt-4" v-if="user.role_id !== 2" @click="exportData">Экспорт данных
                         <v-icon>mdi-file-excel-box</v-icon>
                     </v-btn>
                     <v-spacer></v-spacer>
@@ -80,6 +84,7 @@
 
 <script>
     import {getDebts} from "../../../api/client/clientApi";
+    import axios from "axios";
 
     export default {
         async mounted() {
@@ -94,6 +99,7 @@
         },
         data: () => ({
             clients: null,
+            overlay: false,
             search: '',
             total_debt: 0,
             headers: [
@@ -133,6 +139,14 @@
             },
             openInNewTab(e) {
                 this.$router.push({name: 'clients.show', params: {userId: e.id}})
+            },
+            async exportData() {
+                this.overlay = true;
+                const { data } = await axios.get(`/api/export/debts`);
+                const link = document.createElement('a');
+                link.href = data;
+                link.click();
+                this.overlay = false;
             }
         }
     }

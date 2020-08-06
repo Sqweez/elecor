@@ -53,4 +53,13 @@ class ExportController extends Controller {
         $excelService = new ExcelController();
         return $excelService->exportClients($request, $json_data);
     }
+
+    public function exportDebts() {
+        $debts = DebtResource::collection(Client::all());
+        $debts = collect($debts)->filter(function($i) {
+            return $i !== null;
+        })->values();
+        $excelService = new ExcelController();
+        return $excelService->exportDebts(json_encode($debts));
+    }
 }
