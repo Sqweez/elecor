@@ -15,7 +15,9 @@ class DebtResource extends JsonResource
     public function toArray($request)
     {
 
-        $connections = DebtConnectionResource::collection($this->connections->where('is_deleted', '0'))->toArray($request);
+        $connections = DebtConnectionResource::collection(
+            $this->connections->where('is_deleted', '0')
+        )->toArray($request);
 
         $connections = array_filter($connections, function ($arr) {
             return $arr !== null;

@@ -121,12 +121,11 @@ class ExcelController extends Controller {
         return $account;
     }
 
-	public function exportDebts($data) {
+	public function exportDebts($data, $date) {
         $debts = json_decode($data, true);
         $spreadSheet = IOFactory::load(storage_path('app/public/debt_template.xlsx'));
         $sheet = $spreadSheet->getActiveSheet();
-        $now = Carbon::today()->toDateString();
-        $sheet->setCellValue('A1', "Дебиторская задолженность на " . $now);
+        $sheet->setCellValue('A1', "Дебиторская задолженность на " . $date);
         collect($debts)->each(function ($item, $key) use ($sheet) {
             $initialIndex = 3;
             $index = $initialIndex + $key;

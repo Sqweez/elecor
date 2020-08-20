@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Service\ExcelController;
 use App\Http\Resources\ClientsResource;
 use App\Http\Resources\DebtResource;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ExportController extends Controller {
@@ -54,12 +55,12 @@ class ExportController extends Controller {
         return $excelService->exportClients($request, $json_data);
     }
 
-    public function exportDebts() {
+    public function exportDebts(Request $request) {
         $debts = DebtResource::collection(Client::all());
         $debts = collect($debts)->filter(function($i) {
             return $i !== null;
         })->values();
         $excelService = new ExcelController();
-        return $excelService->exportDebts(json_encode($debts));
+        return $excelService->exportDebts(json_encode($debts), $request->get('date') ?? Carbon::today()->toDateString());
     }
 }

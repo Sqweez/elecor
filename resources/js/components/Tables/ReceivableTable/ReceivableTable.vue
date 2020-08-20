@@ -22,7 +22,7 @@
                 <div v-if="clients !== null">
                     <h3>Общая задолженность: {{total_debt * -1}} тенге</h3>
                     <v-divider class="mt-4"></v-divider>
-                    <v-btn color="primary mt-4" v-if="user.role_id !== 2" @click="exportData">Экспорт данных
+                    <v-btn color="primary mt-4" v-if="user.role_id !== 2" @click="exportModal = true">Экспорт данных
                         <v-icon>mdi-file-excel-box</v-icon>
                     </v-btn>
                     <v-spacer></v-spacer>
@@ -79,14 +79,20 @@
                 </div>
             </v-card-text>
         </v-card>
+        <ExportDebtsModal
+            @cancel="exportModal = false"
+            @submit="exportData"
+            :state="exportModal" />
     </div>
 </template>
 
 <script>
     import {getDebts} from "../../../api/client/clientApi";
     import axios from "axios";
+    import ExportDebtsModal from "../../Modals/ExportDebtsModal/ExportDebtsModal";
 
     export default {
+        components: {ExportDebtsModal},
         async mounted() {
             const response = await getDebts();
             this.clients = response.debts;
@@ -102,6 +108,7 @@
             overlay: false,
             search: '',
             total_debt: 0,
+            exportModal: false,
             headers: [
                 {
                     text: 'Контрагент',
@@ -140,9 +147,10 @@
             openInNewTab(e) {
                 this.$router.push({name: 'clients.show', params: {userId: e.id}})
             },
-            async exportData() {
+            async exportData(e) {
                 this.overlay = true;
-                const { data } = await axios.get(`/api/export/debts`);
+                this.exportModal = false;
+                const { data } = await axios.get(`/api/export/debts?date=${e}`);
                 const link = document.createElement('a');
                 link.href = data;
                 link.click();
