@@ -14,8 +14,10 @@ class DebtResource extends JsonResource
      */
     public function toArray($request)
     {
-
-        $connections = DebtConnectionResource::collection(
+        $is_mtk = $request->has('mtk');
+        $connections = $is_mtk ? DebtConnectionResource::collection(
+            $this->connections->where('service_id', 5)->where('is_deleted', '0')
+        )->toArray($request) : DebtConnectionResource::collection(
             $this->connections->where('is_deleted', '0')
         )->toArray($request);
 

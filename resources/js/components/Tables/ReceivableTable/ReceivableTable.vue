@@ -25,6 +25,10 @@
                     <v-btn color="primary mt-4" v-if="user.role_id !== 2" @click="exportModal = true">Экспорт данных
                         <v-icon>mdi-file-excel-box</v-icon>
                     </v-btn>
+                    <v-btn color="primary mt-4" v-if="user.role_id !== 2" @click="exportModal = true; isMTK = true;">
+                        Экспорт данных МТК
+                        <v-icon>mdi-file-excel-box</v-icon>
+                    </v-btn>
                     <v-spacer></v-spacer>
                     <v-text-field
                         class="p-3"
@@ -104,6 +108,7 @@
             }
         },
         data: () => ({
+            isMTK: false,
             clients: null,
             overlay: false,
             search: '',
@@ -150,11 +155,13 @@
             async exportData(e) {
                 this.overlay = true;
                 this.exportModal = false;
-                const { data } = await axios.get(`/api/export/debts?date=${e}`);
+                const getParams = this.isMTK ? '&mtk=1' : '';
+                const { data } = await axios.get(`/api/export/debts?date=${e}${getParams}`);
                 const link = document.createElement('a');
                 link.href = data;
                 link.click();
                 this.overlay = false;
+                this.isMTK = false;
             }
         }
     }
