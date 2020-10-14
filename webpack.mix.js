@@ -5,7 +5,7 @@ const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const devMode = process.env.NODE_ENV !== 'production';
 
-mix.js('resources/js/app.js', 'public/js')//.version()
+mix.js('resources/js/app.js', 'public/js').version()
     .sass('resources/sass/app.scss', 'public/css')
     .webpackConfig({
         plugins: [

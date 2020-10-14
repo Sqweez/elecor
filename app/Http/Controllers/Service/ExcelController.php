@@ -141,6 +141,7 @@ class ExcelController extends Controller {
             }, $item['connections']);
             $sheet->setCellValue('E' . $index, join("\n", $debt));
             $sheet->getStyle('E' . $index)->getAlignment()->setWrapText(true);
+            $sheet->setCellValue('F' . $index, join("\n", $item['phones']));
         });
 
         $writer = new Xlsx($spreadSheet);

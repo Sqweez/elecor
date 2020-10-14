@@ -15,12 +15,20 @@ class   ClientsResource extends JsonResource
      */
     public function toArray($request)
     {
+        $connections = collect($this->connections->where('is_deleted', false));
+
+        $mtk_only = $request->has('variant') && $request->get('variant') == 4;
+
+        $connections = $mtk_only ? $connections->filter(function ($i) {
+            return $i['service_id'] == 5;
+        }) : $connections;
+
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'personal_accounts' => $this->connections->where('is_deleted', false)->pluck('personal_account'),
-            'addresses' => $this->connections->where('is_deleted', false)->pluck('address'),
-            'trademarks' => $this->connections->where('is_deleted', false)->pluck('trademark'),
+            'personal_accounts' => $connections->pluck('personal_account'),
+            'addresses' => $connections->pluck('address'),
+            'trademarks' => $connections->pluck('trademark'),
         ];
     }
 }

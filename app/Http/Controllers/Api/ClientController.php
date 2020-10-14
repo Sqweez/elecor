@@ -155,29 +155,42 @@ class ClientController extends Controller {
     }
 
     public function test() {
-        $activeConnections = ConnectionResource::collection(Connection::all()->where('is_active', true));
-        $activeConnections = $activeConnections->toArray($activeConnections);
-        foreach ($activeConnections as $activeConnection) {
-            if (count($activeConnection['payments']) === 0) {
-                $date_start = Carbon::parse($activeConnection['date_start']);
-                if ($date_start > Carbon::now()->startOfMonth() && $date_start <= Carbon::now()->endOfMonth()) {
-                    $activeConnection['price'] = $activeConnection['month_price'];
-                }
-                Payment::create(['connection_id' => $activeConnection['id'], 'price' => $activeConnection['price']]);
-                Transaction::create(['connection_id' => $activeConnection['id'], 'balance_change' => $activeConnection['price'] * -1, 'user_id' => 0]);
-                $message = [
-                    'title' => 'Внимание',
-                    'body' => 'С Вашего баланса произошло списание ' . $activeConnection['price'] . ' тг по услуге ' . $activeConnection['service_name'] . '.!'
-                ];
+        $activeConnections = ConnectionResource::collection(Connection::where('is_active', true)->with(['payments', 'payments'])->get());
+        $activeConnections = collect($activeConnections);
 
-                $token = PushService::getToken($activeConnection['client_id']);
-
-                if (strlen($token) > 0) {
-                    PushService::sendPush($message, $token);
-                }
-
+        $activeConnections->each(function ($connection) {
+            if (count($connection['payments']) > 0) {
+                ////
             }
-        }
+            $date_start = Carbon::parse($connection['date_start']);
+            if ($date_start > Carbon::now()->startOfMonth() && $date_start <= Carbon::now()->endOfMonth()) {
+                $activeConnection['price'] = $connection['month_price'];
+            }
+            $payment = [
+                'connection_id' => $connection['id'],
+                'price' => $connection['price']
+            ];
+
+            $transaction = [
+                'connection_id' => $connection['id'],
+                'balance_change' => $connection['price'] * -1,
+                'user_id' => 0
+            ];
+
+            Payment::create($payment);
+            Transaction::create($transaction);
+
+            $message = [
+                'title' => 'Внимание',
+                'body' => 'С Вашего баланса произошло списание ' . $connection['price'] . ' тг по услуге ' . $connection['service_name'] . '.!'
+            ];
+
+            $token = PushService::getToken($connection['client_id']);
+
+            if (strlen($token) > 0) {
+                PushService::sendPush($message, $token);
+            }
+        });
     }
 
     public function push(Request $request) {

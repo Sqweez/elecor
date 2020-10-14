@@ -154,11 +154,18 @@ class MobileController extends Controller {
         // описание заказа
         $description = 'Оплата услуги "' . $service_name . '" для ' . $fullname . ' (Лицевой счет: ' . $personal_id . ')';
 
-        $arrReq = array('pg_merchant_id' => $merchant_id, 'pg_amount' => $price, 'pg_salt' => mt_rand(21, 43433), 'pg_order_id' => 1345566, 'pg_description' => $description, 'pg_encoding' => 'UTF-8', 'pg_currency' => "KZT", //'pg_user_ip'        => $_SERVER['REMOTE_ADDR'],
-            'pg_lifetime' => 86400, //'pg_request_method' => 'GET',
-            'pg_success_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=success', 'pg_failure_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=error',);
-
-        // $arrReq['pg_testing_mode'] = 1;
+        $arrReq = array(
+            'pg_merchant_id' => $merchant_id,
+            'pg_amount' => $price,
+            'pg_salt' => mt_rand(21, 43433),
+            'pg_order_id' => 1345566,
+            'pg_description' => $description,
+            'pg_encoding' => 'UTF-8',
+            'pg_currency' => "KZT",
+            'pg_lifetime' => 86400,
+            'pg_success_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=success',
+            'pg_failure_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=error'
+        );
 
         $arrReq['pg_sig'] = $this->makes('payment.php', $arrReq, $secret_word);
 

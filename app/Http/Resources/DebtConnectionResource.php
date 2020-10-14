@@ -30,7 +30,8 @@ class DebtConnectionResource extends JsonResource
             'trademark' => $this->trademark,
             'address' => $this->address,
             'debt' => $balance,
-            'date' => $date
+            'date' => $date,
+            'service_id' => $this->service_id
         ];
     }
 }

@@ -21,18 +21,26 @@ class DebtResource extends JsonResource
             $this->connections->where('is_deleted', '0')
         )->toArray($request);
 
-        $connections = array_filter($connections, function ($arr) {
+        $connections = $is_mtk ? array_filter($connections, function ($arr) {
+            return $arr !== null && intval($arr['service_id'] ) === 5;
+        }) : array_filter($connections, function ($arr) {
             return $arr !== null;
         });
+
 
         if (count($connections) === 0) {
             return null;
         }
 
+        $phones = $this->phones;
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'connections' => $connections,
+            'phones' => $phones->map(function($i) {
+                return $i->phone;
+            })->toArray(),
             '_personalAccounts' => join(' ', array_map(function ($i) {
                 return $i['personal_account'];
             }, $connections)),
@@ -42,9 +50,9 @@ class DebtResource extends JsonResource
             '_trademarks' => join(' ', array_map(function ($i) {
                 return $i['trademark'];
             }, $connections)),
-            'personal_accounts' => $this->connections->where('is_deleted', false)->pluck('personal_account'),
-            'addresses' => $this->connections->where('is_deleted', false)->pluck('address'),
-            'trademarks' => $this->connections->where('is_deleted', false)->pluck('trademark'),
+            'personal_accounts' => collect($connections)->pluck('personal_account'),
+            'addresses' => collect($connections)->pluck('address'),
+            'trademarks' => collect($connections)->pluck('trademark'),
         ];
     }
 }
