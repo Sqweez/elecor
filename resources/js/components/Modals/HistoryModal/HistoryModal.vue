@@ -73,7 +73,7 @@
                                         <span v-if="transaction.balance < 0">Списание</span>
                                         <span v-else>Пополнение</span>
                                     </td>
-                                    <td>{{ $store.getters.user_by_id(transaction.user_id).name || 'Неизвестно' }}</td>
+                                    <td>{{ 'Администратор' }}</td>
                                     <td>{{ transaction.balance | positive }}</td>
                                     <td>
                                         <span v-if="transaction.sale">{{ transaction.sale }}</span>
