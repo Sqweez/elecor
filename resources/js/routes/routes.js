@@ -83,6 +83,11 @@ const routes = [
             denied: [4, 2]
         }
     },
+    {
+        path: '/companies',
+        name: "Companies",
+        component: () => import('../views/Services/Companies/Companies')
+    }
 
 ];
 

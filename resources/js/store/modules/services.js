@@ -2,10 +2,12 @@ import GETTERS from "../getters";
 import MUTATIONS from "../mutations";
 import ACTIONS from "../actions";
 import {createService, deleteService, getServices, editService} from "../../api/services";
+import axios from 'axios';
 
 const ServiceModule = {
     state: {
         services: [],
+        companies: [],
     },
     getters: {
         [GETTERS.SERVICES](state) {
@@ -20,7 +22,8 @@ const ServiceModule = {
         },
         [GETTERS.SERVICE](state, payload) {;
             return state.services.filter(s => s.id === payload);
-        }
+        },
+        COMPANIES: state => state.companies,
     },
     mutations: {
         [MUTATIONS.SET_SERVICES] (state, payload) {
@@ -34,6 +37,23 @@ const ServiceModule = {
         },
         [MUTATIONS.EDIT_SERVICE] (state, payload) {
             state.services = state.services.map(s => {
+                if (s.id == payload.id) {
+                    s = payload;
+                }
+                return s;
+            })
+        },
+        SET_COMPANIES(state, payload) {
+            state.companies = payload;
+        },
+        ADD_COMPANY(state, payload) {
+            state.companies.push(payload);
+        },
+        DELETE_COMPANY(state, payload) {
+            state.companies = state.companies.filter(s => s.id != payload);
+        },
+        EDIT_COMPANY(state, payload) {
+            state.companies = state.companies.map(s => {
                 if (s.id == payload.id) {
                     s = payload;
                 }
@@ -55,9 +75,24 @@ const ServiceModule = {
             await commit(MUTATIONS.DELETE_SERVICE, payload);
         },
         async [ACTIONS.EDIT_SERVICE] ({commit}, payload) {
-            console.log(payload);
             await editService(payload);
             await commit(MUTATIONS.EDIT_SERVICE, payload);
+        },
+        async GET_COMPANIES({commit}) {
+            const response = await axios.get('/api/company');
+            commit("SET_COMPANIES", response.data);
+        },
+        async CREATE_COMPANY({commit}, payload) {
+            const response = await axios.post('/api/company', payload);
+            commit('ADD_COMPANY', response.data);
+        },
+        async DELETE_COMPANY({commit}, payload) {
+            await axios.delete(`/api/company/${payload}`);
+            commit('DELETE_COMPANY', payload)
+        },
+        async EDIT_COMPANY({commit}, payload) {
+            const response = await axios.patch(`/api/company/${payload.id}`, payload);
+            commit('EDIT_COMPANY', response.data);
         }
     }
 };

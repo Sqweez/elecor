@@ -20,6 +20,13 @@
                         @change="setData"
                         v-model="connection.service_id"
                     />
+                    <v-select
+                        label="Компания"
+                        :items="companies"
+                        item-value="id"
+                        item-text="name"
+                        v-model="connection.company_id"
+                    />
                     <v-text-field
                         v-model="connection.trademark"
                         label="Торговое наименование"/>
@@ -111,6 +118,7 @@
                 month_price: 0,
                 trademark: '',
                 client_id: null,
+                company_id: null,
             },
             personalAccountRules: [
                 v => !!v || 'Введите лицевой счет',
@@ -156,9 +164,13 @@
                     client_id: this.connection.client_id,
                     user_id: 1,
                 };
-                const response = await sendPushToClient(_message);
-                console.log(response);
-                this.showSendModal = false;
+                try {
+                    await sendPushToClient(_message);
+                } catch (e) {
+                    console.log(e);
+                } finally {
+                    this.showSendModal = false;
+                }
             },
             async checkDuplicates() {
                 if (!this.connection.personal_account) {
@@ -204,6 +216,9 @@
                 date = date.toString();
                 date = date.split('-').reverse().join('.');
                 return date;
+            },
+            companies() {
+                return this.$store.getters.COMPANIES;
             }
         },
 

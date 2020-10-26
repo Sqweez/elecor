@@ -15,11 +15,12 @@ class PaymentResource extends JsonResource
      */
     public function toArray($request)
     {
+        $sale = !is_null($this->sales) ? $this->sales['name'] : null;
         return [
             'id' => $this->id,
             'price' => $this->price,
             'connection_id' => $this->connection_id,
-            'sale' => $this->sales['name'],
+            'sale' => $sale,
             'created_at' => $this->created_at,
         ];
     }

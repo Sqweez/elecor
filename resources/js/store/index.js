@@ -22,6 +22,7 @@ const store = new Store({
             dispatch('getUsers');
             dispatch(ACTIONS.GET_SERVICES);
             dispatch(ACTIONS.GET_CLIENTS);
+            dispatch('GET_COMPANIES');
         }
     },
     modules: {

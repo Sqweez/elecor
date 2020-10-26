@@ -155,42 +155,7 @@ class ClientController extends Controller {
     }
 
     public function test() {
-        $activeConnections = ConnectionResource::collection(Connection::where('is_active', true)->with(['payments', 'payments'])->get());
-        $activeConnections = collect($activeConnections);
 
-        $activeConnections->each(function ($connection) {
-            if (count($connection['payments']) > 0) {
-                ////
-            }
-            $date_start = Carbon::parse($connection['date_start']);
-            if ($date_start > Carbon::now()->startOfMonth() && $date_start <= Carbon::now()->endOfMonth()) {
-                $activeConnection['price'] = $connection['month_price'];
-            }
-            $payment = [
-                'connection_id' => $connection['id'],
-                'price' => $connection['price']
-            ];
-
-            $transaction = [
-                'connection_id' => $connection['id'],
-                'balance_change' => $connection['price'] * -1,
-                'user_id' => 0
-            ];
-
-            Payment::create($payment);
-            Transaction::create($transaction);
-
-            $message = [
-                'title' => 'Внимание',
-                'body' => 'С Вашего баланса произошло списание ' . $connection['price'] . ' тг по услуге ' . $connection['service_name'] . '.!'
-            ];
-
-            $token = PushService::getToken($connection['client_id']);
-
-            if (strlen($token) > 0) {
-                PushService::sendPush($message, $token);
-            }
-        });
     }
 
     public function push(Request $request) {

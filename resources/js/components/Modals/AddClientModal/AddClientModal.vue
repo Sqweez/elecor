@@ -41,6 +41,20 @@
                         v-model="additionalData[index]"
                     />
                     <v-text-field label="Дата рождения" type="date" v-model="client.birth_date" />
+                    <v-select
+                        item-value="id"
+                        item-text="lang"
+                        label="Язык"
+                        :items="languages"
+                        v-model="client.lang"
+                    />
+                    <v-select
+                        item-value="id"
+                        item-text="gender"
+                        label="Пол"
+                        :items="genders"
+                        v-model="client.gender"
+                    />
                     <v-text-field
                         label="Номер телефона"
                         append-outer-icon="mdi-plus"
@@ -138,6 +152,8 @@
                 client_type: null,
                 comment: '',
                 photo: '',
+                gender: null,
+                lang: null
             },
             showLoader: false,
             loading: false,
@@ -163,6 +179,12 @@
                 default: true,
             }
         },
+        watch: {
+          state() {
+              this.client.gender = this.genders[0].id;
+              this.client.lang = this.languages[0].id;
+          }
+        },
         computed: {
             subjects() {
                 return this.$store.getters.getSubjects;
@@ -171,6 +193,12 @@
                 const fields = this.$store.getters.active_fields;
                 this.additionalData = Array(fields.length).fill('');
                 return fields;
+            },
+            languages() {
+                return this.$store.getters.LANGUAGES;
+            },
+            genders() {
+                return this.$store.getters.GENDERS;
             }
         },
         methods: {

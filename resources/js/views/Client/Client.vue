@@ -30,6 +30,7 @@
                                     <th class="text-center">Адрес</th>
                                     <th class="text-center">Тариф</th>
                                     <th class="text-center">Лицевой счет</th>
+                                    <th class="text-center">Договор</th>
                                     <th class="text-center">Баланс</th>
                                     <th class="text-center" v-if="user.role_id === 1 || user.role_id === 3">Действие</th>
                                 </tr>
@@ -114,6 +115,19 @@
                                             v-if="editConnectionMode && editingConnection.id === item.id"/>
                                         <span
                                             v-if="!editConnectionMode">{{ item.personal_account | account_pipe}}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <v-select
+                                            label="Компания"
+                                            v-if="editConnectionMode"
+                                            :items="companies"
+                                            item-text="name"
+                                            item-value="id"
+                                            v-model="editingConnection.company_id"
+                                        >
+
+                                        </v-select>
+                                        <span v-if="!editConnectionMode">{{ item.company.name }}</span>
                                     </td>
                                     <td class="text-center">
                                         <span v-if="!item.paymentMode">{{ item.balance }}</span>
@@ -233,6 +247,9 @@
         computed: {
             client() {
                 return this.$store.getters[GETTERS.CLIENT];
+            },
+            companies() {
+                return this.$store.getters.COMPANIES;
             },
             subjects() {
                 return this.$store.getters.getSubjects;
@@ -396,6 +413,7 @@
             },
             async connectService() {
                 await this.$store.dispatch(ACTIONS.CONNECT, this.connection_id);
+                console.log(this.client);
                 await this.sendPush({
                     title: 'Внимание!',
                     body: `Вы подключили услугу ${this.service_name}.`,
@@ -423,7 +441,11 @@
                     user_id: 1
                 };
 
-                await sendPushToClient(message);
+                try {
+                    await sendPushToClient(message);
+                } catch (e) {
+                    console.log(e);
+                }
             },
             async editConnection() {
                 await this.$store.dispatch(ACTIONS.EDIT_CONNECTION, {
@@ -431,7 +453,8 @@
                     trademark: this.editingConnection.trademark,
                     personal_account: this.editingConnection.personal_account,
                     price: this.editingConnection.price,
-                    address: this.editingConnection.address
+                    address: this.editingConnection.address,
+                    company_id: this.editingConnection.company_id,
                 });
                 this.editConnectionMode = false;
                 this.editingConnection = null;

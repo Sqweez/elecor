@@ -14,11 +14,12 @@ class TransactionResource extends JsonResource
      */
     public function toArray($request)
     {
+        $sale = !is_null($this->sales) ? $this->sales['name'] : null;
         return [
             'id' => $this->id,
             'balance' => $this->balance_change,
             'user_id' => intval($this->user_id),
-            'sale' => $this->sales['name'],
+            'sale' => $sale,
             'created_at' => $this->created_at,
         ];
     }

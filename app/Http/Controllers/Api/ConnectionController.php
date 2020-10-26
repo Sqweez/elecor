@@ -31,7 +31,7 @@ class ConnectionController extends Controller {
      *
      * @param Connection $connection
      * @param Request $request
-     * @return Connection
+     * @return ConnectionResource
      */
     public function update(Connection $connection, Request $request) {
         $data = $request->all();
@@ -41,7 +41,7 @@ class ConnectionController extends Controller {
         }
         $data['personal_account'] = preg_replace('/\s+/', '', $data['personal_account']);
         $connection->update($data);
-        return $connection;
+        return new ConnectionResource($connection);
     }
 
     public function destroy(Connection $connection) {

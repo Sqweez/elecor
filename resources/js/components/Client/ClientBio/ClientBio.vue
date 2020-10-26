@@ -55,6 +55,42 @@
                         </div>
                     </div>
                     <div class="d-flex">
+                        <p><span class="font-weight-black">Пол: </span>
+                            <span v-if="!editMode">
+                                {{ genders.find(c => c.id === client.gender).gender }}
+                            </span>
+                        </p>
+                        <v-select
+                            v-if="editMode"
+                            v-model="client.gender"
+                            :items="genders"
+                            class="subject__select"
+                            item-text="gender"
+                            item-value="id"></v-select>
+                    </div>
+                    <div class="d-flex">
+                        <p><span class="font-weight-black">Дата рождения: </span>
+                            <span v-if="!editMode">
+                                {{ getDate(client.birth_date) }}
+                            </span>
+                        </p>
+                        <v-text-field label="Дата рождения" type="date" v-model="client.birth_date" v-if="editMode"/>
+                    </div>
+                    <div class="d-flex">
+                        <p><span class="font-weight-black">Язык: </span>
+                            <span v-if="!editMode">
+                                {{ languages.find(c => c.id === client.lang).lang }}
+                            </span>
+                        </p>
+                        <v-select
+                            v-if="editMode"
+                            v-model="client.lang"
+                            :items="languages"
+                            class="subject__select"
+                            item-text="lang"
+                            item-value="id"></v-select>
+                    </div>
+                    <div class="d-flex">
                         <p><span class="font-weight-black">Комментарий: </span>
                             <span v-if="!editMode">{{ client.comment }}</span>
                         </p>
@@ -171,6 +207,12 @@
             user() {
                 return this.$store.getters.user;
             },
+            genders() {
+                return this.$store.getters.GENDERS;
+            },
+            languages() {
+                return this.$store.getters.LANGUAGES;
+            },
             phoneInputs() {
                 if (this.client.phones.length === 0) {
                     return [{component: VTextField}]
@@ -201,6 +243,13 @@
             toggleEdit() {
                 this.editMode = true;
                 this.$emit('editToggled', {});
+            },
+            getDate(date) {
+                if (date !== '0000-00-00') {
+                    return new Date(date).toLocaleDateString()
+                } else {
+                    return 'Не указано'
+                }
             },
             async saveUser() {
 

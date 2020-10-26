@@ -25,6 +25,9 @@ class SingleClientResource extends JsonResource
             'phones' => PhoneResource::collection($this->phones),
             'connections' => ConnectionResource::collection($this->connections->where('is_deleted', false)->except(['created_at', 'updated_at'])),
             'additional_fields' => json_decode($this->additional_fields, true),
+            'gender' => $this->gender,
+            'lang' => $this->lang,
+            'birth_date' => $this->birth_date,
         ];
     }
 }

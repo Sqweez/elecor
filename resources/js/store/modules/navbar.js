@@ -59,6 +59,10 @@ const navbarModule = {
                         title: 'Рассылка',
                         url: '/mailing',
                         hide: [2, 1]
+                    },
+                    {
+                        title: 'Компании',
+                        url: '/companies'
                     }
                 ]
             },

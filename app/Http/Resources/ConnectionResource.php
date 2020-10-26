@@ -31,6 +31,8 @@ class ConnectionResource extends JsonResource
             'service_name' => Service::find($this->service_id)->first()['name'],
             'balance' => $this->transactions->sum('balance_change'),
             'payments' => $this->payments->where('sale_id', false)->where('created_at', '>=', Carbon::today()->startOfMonth()),
+            'company' => $this->company,
+            'company_id' => $this->company_id,
         ];
     }
 }

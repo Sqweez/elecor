@@ -15,6 +15,10 @@ class Connection extends Model {
         return $this->hasMany('App\Transaction');
     }
 
+    public function company() {
+        return $this->belongsTo('App\Company', 'company_id');
+    }
+
     public function client() {
         return $this->belongsTo('App\Client', 'client_id');
     }

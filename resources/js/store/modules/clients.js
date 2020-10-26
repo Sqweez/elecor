@@ -24,6 +24,26 @@ const clientsModule = {
         clients: null,
         client: null,
         debts: [],
+        languages: [
+            {
+                id: 'ru',
+                lang: 'Русский'
+            },
+            {
+                id: 'kz',
+                lang: 'Казахский'
+            }
+        ],
+        genders: [
+            {
+                id: 'M',
+                gender: 'Мужской'
+            },
+            {
+                id: 'F',
+                gender: 'Женский'
+            }
+        ]
     },
     getters: {
         [GETTERS.CLIENTS](state) {
@@ -66,6 +86,8 @@ const clientsModule = {
             return duplicates;
         },
         debts: state => state.debts,
+        LANGUAGES: state => state.languages,
+        GENDERS: state => state.genders,
     },
     mutations: {
         [MUTATIONS.SET_CLIENTS](state, payload) {
@@ -130,6 +152,8 @@ const clientsModule = {
                     c.address = payload.address;
                     c.price = payload.price;
                     c.personal_account = payload.personal_account;
+                    c.company = payload.company;
+                    c.company_id = payload.company_id;
                 }
                 return c;
             })

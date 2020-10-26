@@ -19,11 +19,14 @@ Route::get('export/clients', 'Api\ExportController@exportClients');
 Route::get('export/debts', 'Api\ExportController@exportDebts');
 
 Route::middleware(['check_token'])->group(function () {
-    Route::get('test', 'Api\ClientController@test');
+    // Ежемесячное списание с баланса
+    Route::get('test', 'CronController@monthlyBalanceChange');
+    Route::get('birthday', 'CronController@dailyBirthday');
 
     Route::resource('mailing_history', 'Api\MailingHistoryController');
     Route::resource('mailing_templates', 'Api\MailingTemplateController');
     Route::post('mailing', 'Api\MailingController@mailing');
+    Route::resource('company', 'Api\CompanyController');
 
     Route::prefix('clients')->group(function () {
         Route::get('debt', 'Api\ClientController@getDebt');
