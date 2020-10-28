@@ -54,7 +54,7 @@
                             </v-btn>
                         </div>
                     </div>
-                    <div class="d-flex">
+                    <div class="d-flex" v-if="isPhysical">
                         <p><span class="font-weight-black">Пол: </span>
                             <span v-if="!editMode">
                                 {{ genders.find(c => c.id === client.gender).gender }}
@@ -68,7 +68,7 @@
                             item-text="gender"
                             item-value="id"></v-select>
                     </div>
-                    <div class="d-flex">
+                    <div class="d-flex" v-if="isPhysical">
                         <p><span class="font-weight-black">Дата рождения: </span>
                             <span v-if="!editMode">
                                 {{ getDate(client.birth_date) }}
@@ -76,7 +76,7 @@
                         </p>
                         <v-text-field label="Дата рождения" type="date" v-model="client.birth_date" v-if="editMode"/>
                     </div>
-                    <div class="d-flex">
+                    <div class="d-flex" v-if="isPhysical">
                         <p><span class="font-weight-black">Язык: </span>
                             <span v-if="!editMode">
                                 {{ languages.find(c => c.id === client.lang).lang }}
@@ -227,6 +227,9 @@
             },
             activeFields() {
                 return this.$store.getters.active_fields;
+            },
+            isPhysical() {
+                return +this.client.client_type === 1;
             }
         },
         props: {
@@ -245,7 +248,7 @@
                 this.$emit('editToggled', {});
             },
             getDate(date) {
-                if (date !== '0000-00-00') {
+                if (date !== '0000-00-00' && date !== null) {
                     return new Date(date).toLocaleDateString()
                 } else {
                     return 'Не указано'

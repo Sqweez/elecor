@@ -40,8 +40,9 @@
                         :key="field.id"
                         v-model="additionalData[index]"
                     />
-                    <v-text-field label="Дата рождения" type="date" v-model="client.birth_date" />
+                    <v-text-field label="Дата рождения" type="date" v-model="client.birth_date" v-if="isPhysical"/>
                     <v-select
+                        v-if="isPhysical"
                         item-value="id"
                         item-text="lang"
                         label="Язык"
@@ -49,6 +50,7 @@
                         v-model="client.lang"
                     />
                     <v-select
+                        v-if="isPhysical"
                         item-value="id"
                         item-text="gender"
                         label="Пол"
@@ -199,6 +201,9 @@
             },
             genders() {
                 return this.$store.getters.GENDERS;
+            },
+            isPhysical() {
+                return this.client.client_type === 1 || null;
             }
         },
         methods: {

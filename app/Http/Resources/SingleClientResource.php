@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SingleClientResource extends JsonResource
@@ -19,7 +20,7 @@ class SingleClientResource extends JsonResource
             'push_token' => $this->push_token,
             'name' => $this->name,
             'comment' => $this->comment,
-            'client_type' => $this->client_type,
+            'client_type' => intval($this->client_type),
             'photo' => $this->photo,
             'type' => new ClientTypeResource($this->type),
             'phones' => PhoneResource::collection($this->phones),
@@ -27,7 +28,7 @@ class SingleClientResource extends JsonResource
             'additional_fields' => json_decode($this->additional_fields, true),
             'gender' => $this->gender,
             'lang' => $this->lang,
-            'birth_date' => $this->birth_date,
+            'birth_date' => $this->birth_date ?? null,
         ];
     }
 }
