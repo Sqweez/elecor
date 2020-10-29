@@ -29,6 +29,7 @@ class   ClientsResource extends JsonResource
             'personal_accounts' => $connections->pluck('personal_account'),
             'addresses' => $connections->pluck('address'),
             'trademarks' => $connections->pluck('trademark'),
+            'client_type' => intval($this->client_type)
         ];
     }
 }

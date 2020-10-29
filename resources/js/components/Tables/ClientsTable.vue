@@ -32,7 +32,7 @@
                 <div
                     class="text-center d-flex align-items-center justify-content-center"
                     style="min-height: 651px"
-                    v-if="!allClients">
+                    v-if="!clients">
                     <v-progress-circular
                         indeterminate
                         size="65"
@@ -40,7 +40,7 @@
                     ></v-progress-circular>
                 </div>
                 <v-text-field
-                    v-if="allClients"
+                    v-if="clients"
                     v-model="search"
                     outlined
                     solo
@@ -50,18 +50,27 @@
                     single-line
                     hide-details
                 ></v-text-field>
+                <v-select
+                    label="Тип клиента"
+                    :items="subjects"
+                    item-text="type"
+                    item-value="id"
+                    v-model="client_type"
+                ></v-select>
             </div>
             <v-data-table
-                v-if="allClients"
+                v-if="clients"
                 @click:row="rowClick"
                 no-results-text="Нет результатов"
                 no-data-text="Нет данных"
+                :page="CURRENT_PAGE"
+                @update:page="updatePage"
                 :footer-props="{
                 'items-per-page-options': [10, 15, {text: 'Все', value: -1}],
                 'items-per-page-text': 'Записей на странице',
             }"
                 :headers="headers"
-                :items="allClients"
+                :items="clients"
                 :search="search"
             >
                 <template v-slot:item.personalAccount="{ item }">
@@ -119,7 +128,17 @@
             }
         },
         computed: {
-            ...mapGetters([GETTERS.CLIENTS, GETTERS.CLIENTS_COUNT, 'user'])
+            ...mapGetters([GETTERS.CLIENTS_COUNT, 'user', "CURRENT_PAGE"]),
+            clients() {
+                if (this.client_type === -1) {
+                    return this.$store.getters[GETTERS.CLIENTS];
+                } else {
+                    return this.$store.getters[GETTERS.CLIENTS].filter(client => client.client_type === this.client_type);
+                }
+            },
+            subjects() {
+                return [{type: 'Все', id: -1}, ...this.$store.getters.getSubjects];
+            },
         },
         data: () => ({
             showAddClientModal: false,
@@ -128,7 +147,9 @@
             search: '',
             showParseBalanceModal: false,
             exportClientModal: false,
+            pageNumber: 1,
             overlay: false,
+            client_type: -1,
             headers: [
                 {
                     text: 'Контрагент',
@@ -163,6 +184,9 @@
             async rowClick(e) {
                 await this.$router.push({name: 'clients.show', params: {userId: e.id}})
             },
+            updatePage(page) {
+                this.$store.commit('setCurrentPage', page);
+            },
             closeModal() {
                 this.showAddClientModal = false;
             },
@@ -190,6 +214,11 @@
                 link.href = data;
                 link.click();
                 this.overlay = false;
+            }
+        },
+        watch: {
+            pageNumber(value) {
+                console.log(value);
             }
         }
     }

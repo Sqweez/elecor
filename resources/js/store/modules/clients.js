@@ -43,7 +43,8 @@ const clientsModule = {
                 id: 'F',
                 gender: 'Женский'
             }
-        ]
+        ],
+        current_page: 1,
     },
     getters: {
         [GETTERS.CLIENTS](state) {
@@ -88,6 +89,7 @@ const clientsModule = {
         debts: state => state.debts,
         LANGUAGES: state => state.languages,
         GENDERS: state => state.genders,
+        CURRENT_PAGE: state => state.current_page,
     },
     mutations: {
         [MUTATIONS.SET_CLIENTS](state, payload) {
@@ -165,6 +167,9 @@ const clientsModule = {
         },
         setDebts (state, payload) {
             state.debts = payload;
+        },
+        setCurrentPage(state, payload) {
+            state.current_page = payload;
         }
     },
     actions: {
