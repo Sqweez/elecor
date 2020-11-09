@@ -23,6 +23,10 @@ class Connection extends Model {
         return $this->belongsTo('App\Client', 'client_id');
     }
 
+    public function service() {
+        return $this->belongsTo('App\Service', 'service_id');
+    }
+
     public static function boot() {
         parent::boot();
         static::deleting(function($connection) {

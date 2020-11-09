@@ -117,7 +117,7 @@ class ExcelController extends Controller {
     }
 
     private function findAccount($account) {
-        $account = Connection::where('personal_account', $account)->with('client')->first();
+        $account = Connection::where('personal_account', $account)->where('is_deleted', false)->with('client')->first();
         return $account;
     }
 

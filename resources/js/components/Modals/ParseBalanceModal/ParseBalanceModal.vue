@@ -135,7 +135,7 @@
                 this.clients = await parseBalance(this.fileUrl);
                 this.selectedClients = this.clients.filter(c => c.client !== null);
                 this.loading = false;
-                await deleteFile(this.fileUrl);
+                //await deleteFile(this.fileUrl);
                 return;
             },
             chooseFile() {

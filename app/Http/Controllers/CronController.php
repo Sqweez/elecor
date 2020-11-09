@@ -14,44 +14,40 @@ use Illuminate\Http\Request;
 class CronController extends Controller
 {
     public function monthlyBalanceChange() {
-        $activeConnections = ConnectionResource::collection(Connection::where('is_active', true)->with(['payments', 'payments'])->get());
-        $activeConnections = collect($activeConnections);
+        $count = 0;
+        $connections = Connection::where('is_active', true)->with(['payments', 'service'])->orderByDesc('id')->get();
 
-        $activeConnections->each(function ($connection) {
-            if (count($connection['payments']) > 0) {
-                ////
-            } else {
-                $date_start = Carbon::parse($connection['date_start']);
-                if ($date_start > Carbon::now()->startOfMonth() && $date_start <= Carbon::now()->endOfMonth()) {
-                    $activeConnection['price'] = $connection['month_price'];
-                }
-                $payment = [
-                    'connection_id' => $connection['id'],
-                    'price' => $connection['price']
-                ];
-
-                $transaction = [
-                    'connection_id' => $connection['id'],
-                    'balance_change' => $connection['price'] * -1,
-                    'user_id' => 0
-                ];
-
-                Payment::create($payment);
-                Transaction::create($transaction);
-
-                $message = [
-                    'title' => 'Внимание',
-                    'body' => 'С Вашего баланса произошло списание ' . $connection['price'] . ' тг по услуге ' . $connection['service_name'] . '.!'
-                ];
-
-                $token = PushService::getToken($connection['client_id']);
-
-                if (strlen($token) > 0) {
-                    PushService::sendPush($message, $token);
-                }
-            }
-
+        $connections = $connections->filter(function ($connection) {
+            $payments = collect($connection['payments'])->filter(function ($i) {
+                return $i['sale_id'] === null && $i['created_at'] >= Carbon::today()->startOfMonth();
+            });
+            return count($payments) === 0;
         });
+
+        foreach ($connections as $connection) {
+            $connection['service_name'] = $connection['service']['name'];
+            $count++;
+            $date_start = Carbon::parse($connection['date_start']);
+            if ($date_start > Carbon::now()->startOfMonth() && $date_start <= Carbon::now()->endOfMonth()) {
+                $connection['price'] = $connection['month_price'];
+            }
+            $payment = ['connection_id' => $connection['id'], 'price' => $connection['price']];
+
+            $transaction = ['connection_id' => $connection['id'], 'balance_change' => $connection['price'] * -1, 'user_id' => 0];
+
+            Payment::create($payment);
+            Transaction::create($transaction);
+
+            $message = ['title' => 'Внимание', 'body' => 'С Вашего баланса произошло списание ' . $connection['price'] . ' тг по услуге ' . $connection['service_name'] . '.!'];
+
+            $token = PushService::getToken($connection['client_id']);
+
+            if (strlen($token) > 0) {
+                PushService::sendPush($message, $token);
+            }
+        }
+
+        return 'success' . $count;
     }
 
     public function dailyBirthday() {
