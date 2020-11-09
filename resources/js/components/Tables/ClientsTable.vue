@@ -52,6 +52,7 @@
                 ></v-text-field>
                 <v-select
                     label="Тип клиента"
+                    v-if="clients"
                     :items="subjects"
                     item-text="type"
                     item-value="id"
