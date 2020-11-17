@@ -143,8 +143,8 @@ class MobileController extends Controller {
     }
 
     public function pay(Request $request) {
-        $merchant_id = 514216;
-        $secret_word = 'Vz4roXY8y3Ccxovs';
+        $merchant_id = env('PAYBOX_ID');
+        $secret_word = env('PAYBOX_SECRET_WORD');
 
         $price = $request->get('price');
         $fullname = $request->get('name');
@@ -158,7 +158,7 @@ class MobileController extends Controller {
             'pg_merchant_id' => $merchant_id,
             'pg_amount' => $price,
             'pg_salt' => mt_rand(21, 43433),
-            'pg_order_id' => 1345566,
+            'pg_order_id' => mt_rand(1, 90000),
             'pg_description' => $description,
             'pg_encoding' => 'UTF-8',
             'pg_currency' => "KZT",

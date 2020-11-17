@@ -273,7 +273,7 @@ class ClientController extends Controller {
     }
 
     public function getDebt() {
-        $debts = DebtResource::collection(Client::all());
+        $debts = DebtResource::collection(Client::with(['connections']));
         $total_debt = 0;
 
         $debts = collect($debts)->filter(function($i) {
