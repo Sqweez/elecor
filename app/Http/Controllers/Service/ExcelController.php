@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ExcelController extends Controller {
@@ -54,45 +55,23 @@ class ExcelController extends Controller {
         return $clients;
     }
 
-    public function exportClients(Request $request, $json_data) {
-        $exportVariant = intval($request->get('variant')) ?? 1;
-
-        $title = "";
-
-        switch ($exportVariant) {
-            case 1:
-                $title = 'Все клиенты';
-                break;
-            case 2:
-                $title = 'Клиент подключенные к МТК';
-                break;
-            case 3:
-                $title = 'Клиенты подключенные к МТК без дебиторской задолженности';
-                break;
-            case 4:
-                $title = 'Клиенты подключенные к МТК без дебиторской задолженности и с тарифом 2000';
-                break;
-            default:
-                break;
-        }
-
-
-        $clients = json_decode($json_data, true);
+    public function exportClients(Request $request, $clients) {
+        $title = "Список клиентов от " . now()->format('d.m.Y');
 
         $spreadSheet = IOFactory::load(storage_path('app/public/clients_template.xlsx'));
         $sheet = $spreadSheet->getActiveSheet();
         $sheet->setCellValue('A1', $title);
 
-
         collect($clients)->each(function ($item, $key) use ($sheet) {
             $initialIndex = 3;
             $index = $initialIndex + $key;
+           // dd($item['personal_accounts']);
             $sheet->setCellValue('A' . $index, $item['name']);
-            $sheet->setCellValue('B' . $index, join("\n", $item['personal_accounts']));
+            $sheet->setCellValue('B' . $index, join("\n", $item['personal_accounts']->values()->all()));
             $sheet->getStyle('B' . $index)->getAlignment()->setWrapText(true);
-            $sheet->setCellValue('C' . $index, join("\n", $item['trademarks']));
+            $sheet->setCellValue('C' . $index, join("\n", $item['trademarks']->values()->all()));
             $sheet->getStyle('C' . $index)->getAlignment()->setWrapText(true);
-            $sheet->setCellValue('D' . $index, join("\n", $item['addresses']));
+            $sheet->setCellValue('D' . $index, join("\n", $item['addresses']->values()->all()));
             $sheet->getStyle('D' . $index)->getAlignment()->setWrapText(true);
         });
 
@@ -121,27 +100,28 @@ class ExcelController extends Controller {
         return $account;
     }
 
-	public function exportDebts($data, $date) {
-        $debts = json_decode($data, true);
+	public function exportDebts($debts) {
         $spreadSheet = IOFactory::load(storage_path('app/public/debt_template.xlsx'));
         $sheet = $spreadSheet->getActiveSheet();
-        $sheet->setCellValue('A1', "Дебиторская задолженность на " . $date);
-        collect($debts)->each(function ($item, $key) use ($sheet) {
+        $sheet->setCellValue('A1', "Выгрузка по дебиторской задолженности");
+        collect($debts)->map(function ($item, $key) use ($sheet) {
             $initialIndex = 3;
             $index = $initialIndex + $key;
+            $connections = collect($item['connections']);
             $sheet->setCellValue('A' . $index, $item['name']);
-            $sheet->setCellValue('B' . $index, join("\n", $item['personal_accounts']));
+            $sheet->setCellValue('B' . $index, join("\n", $connections->pluck('personal_account')->values()->all()));
+            $sheet->getStyle('B' . $index)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
             $sheet->getStyle('B' . $index)->getAlignment()->setWrapText(true);
-            $sheet->setCellValue('C' . $index, join("\n", $item['trademarks']));
+            $sheet->setCellValue('C' . $index, join("\n", $connections->pluck('trademark')->values()->all()));
             $sheet->getStyle('C' . $index)->getAlignment()->setWrapText(true);
-            $sheet->setCellValue('D' . $index, join("\n", $item['addresses']));
+            $sheet->getStyle('C' . $index)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            $sheet->setCellValue('D' . $index, join("\n", $connections->pluck('address')->values()->all()));
             $sheet->getStyle('D' . $index)->getAlignment()->setWrapText(true);
-            $debt = array_map(function ($i) {
-                return $i['debt'];
-            }, $item['connections']);
-            $sheet->setCellValue('E' . $index, join("\n", $debt));
+            $sheet->getStyle('D' . $index)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            $sheet->setCellValue('E' . $index, join("\n", $connections->pluck('debt')->values()->all()));
+            $sheet->getStyle('E' . $index)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
             $sheet->getStyle('E' . $index)->getAlignment()->setWrapText(true);
-            $sheet->setCellValue('F' . $index, join("\n", $item['phones']));
+            $sheet->setCellValue('F' . $index, join("\n", $item['phones']->values()->all()));
         });
 
         $writer = new Xlsx($spreadSheet);

@@ -6,6 +6,7 @@ import store from './store'
 import CKEditor from '@ckeditor/ckeditor5-vue';
 import VueMask from 'v-mask';
 import Vuelidate from 'vuelidate'
+import './filters/filters';
 
 Vue.config.productionTip = false;
 Vue.use(CKEditor);

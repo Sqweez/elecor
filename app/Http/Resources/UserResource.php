@@ -18,7 +18,7 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'login' => $this->login,
             'name' => $this->name,
-            'role' => $this->user_role($this->role)->pluck('name')[0],
+            'role' => $this->user_role->name,
             'role_id' => intval($this->role),
             'token' => $this->token,
         ];

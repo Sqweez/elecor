@@ -16,21 +16,12 @@ class DebtConnectionResource extends JsonResource
     public function toArray($request)
     {
 
-        $date = $request->get('date') ?? Carbon::now()->toDateString();
-
-        $balance = $this->transactions()->whereDate('created_at', '<=', Carbon::parse($date)->toDateString())->sum('balance_change');
-
-        if ($balance >= 0) {
-            return null;
-        }
-
         return [
             'id' => $this->id,
             'personal_account' => $this->personal_account,
             'trademark' => $this->trademark,
             'address' => $this->address,
-            'debt' => $balance,
-            'date' => $date,
+            'debt' => +$this->balance,
             'service_id' => $this->service_id
         ];
     }

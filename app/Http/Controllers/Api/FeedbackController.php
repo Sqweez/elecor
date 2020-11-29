@@ -14,11 +14,11 @@ class FeedbackController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return Feedback[]|\Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        return FeedbackResource::collection(Feedback::all()->sortByDesc('created_at'));
+        return FeedbackResource::collection(Feedback::with(['client'])->get()->sortByDesc('created_at'));
     }
 
     public function count() {

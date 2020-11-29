@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Str;
 
 class DebtResource extends JsonResource
 {
@@ -14,45 +15,24 @@ class DebtResource extends JsonResource
      */
     public function toArray($request)
     {
-        $is_mtk = $request->has('mtk');
-        $connections = $is_mtk ? DebtConnectionResource::collection(
-            $this->connections->where('service_id', 5)->where('is_deleted', '0')
-        )->toArray($request) : DebtConnectionResource::collection(
-            $this->connections->where('is_deleted', '0')
-        )->toArray($request);
-
-        $connections = $is_mtk ? array_filter($connections, function ($arr) {
-            return $arr !== null && intval($arr['service_id'] ) === 5;
-        }) : array_filter($connections, function ($arr) {
-            return $arr !== null;
-        });
-
-
-        if (count($connections) === 0) {
-            return null;
-        }
-
-        $phones = $this->phones;
-
+        $connections = DebtConnectionResource::collection($this->connections);
         return [
             'id' => $this->id,
             'name' => $this->name,
             'connections' => $connections,
-            'phones' => $phones->map(function($i) {
+            'phones' => $this->phones->map(function($i) {
                 return $i->phone;
-            })->toArray(),
-            '_personalAccounts' => join(' ', array_map(function ($i) {
-                return $i['personal_account'];
-            }, $connections)),
-            '_addresses' => join(' ', array_map(function ($i) {
-                return $i['address'];
-            }, $connections)),
-            '_trademarks' => join(' ', array_map(function ($i) {
-                return $i['trademark'];
-            }, $connections)),
-            'personal_accounts' => collect($connections)->pluck('personal_account'),
-            'addresses' => collect($connections)->pluck('address'),
-            'trademarks' => collect($connections)->pluck('trademark'),
+            })->values(),
+
+            '_personalAccounts' => trim($this->connections->reduce(function ($a, $c) {
+                return $a . " " . $c->personal_account;
+            }, '')),
+            '_addresses' => trim($this->connections->reduce(function ($a, $c) {
+                return $a . " " . $c->address;
+            }, '')),
+            '_trademarks' => trim($this->connections->reduce(function ($a, $c) {
+                return $a . " " . $c->trademark;
+            }, ''))
         ];
     }
 }

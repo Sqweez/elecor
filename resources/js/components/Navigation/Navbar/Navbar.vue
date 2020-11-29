@@ -92,12 +92,12 @@
             }
         },
         async created() {
-            this.notificationsCount = await getCount();
+           // this.notificationsCount = await getCount();
         },
         async mounted() {
-          setInterval(async () => {
+         /* setInterval(async () => {
               this.notificationsCount = await getCount();
-          }, 10000);
+          }, 10000);*/
         },
         methods: {
             ordersNavigate() {

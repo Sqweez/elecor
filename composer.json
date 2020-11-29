@@ -17,6 +17,7 @@
         "phpoffice/phpspreadsheet": "^1.9"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.5",
         "facade/ignition": "^1.4",
         "fzaninotto/faker": "^1.4",
         "mockery/mockery": "^1.0",

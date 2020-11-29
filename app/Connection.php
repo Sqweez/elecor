@@ -2,7 +2,9 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 class Connection extends Model {
     protected $guarded = [];
@@ -12,6 +14,7 @@ class Connection extends Model {
     }
 
     public function transactions() {
+
         return $this->hasMany('App\Transaction');
     }
 
@@ -27,9 +30,10 @@ class Connection extends Model {
         return $this->belongsTo('App\Service', 'service_id');
     }
 
+
     public static function boot() {
         parent::boot();
-        static::deleting(function($connection) {
+        static::deleting(function ($connection) {
             $connection->payments()->delete();
             $connection->transactions()->delete();
         });

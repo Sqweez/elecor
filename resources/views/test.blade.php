@@ -8,6 +8,29 @@
     <title>Document</title>
 </head>
 <body>
-    <? print_r($rows) ?>
+<table>
+    <thead>
+    <tr>
+        <th>Имя</th>
+        <th>Балансы</th>
+    </tr>
+    </thead>
+    <tbody>
+   {{-- @foreach($debts as $debt)
+        <tr>
+            <td>{{ $debt['name'] }}</td>
+            <td>
+                <ul>
+                    @foreach($debt['connections'] as $connection)
+                        <li>
+                            {{ $connection['address'] }} {{ $connection['balance'] }}
+                        </li>
+                    @endforeach
+                </ul>
+            </td>
+        </tr>
+    @endforeach--}}
+    </tbody>
+</table>
 </body>
 </html>

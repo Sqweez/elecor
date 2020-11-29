@@ -118,7 +118,7 @@
     import ImportClientsModal from "../Modals/ImportClientsModal/ImportClientsModal";
     import GETTERS from "../../store/getters";
     import ParseBalanceModal from "../Modals/ParseBalanceModal/ParseBalanceModal";
-    import ExportClientsModal from "../Modals/ExportClientsModal/ExportClientsModal";
+    import ExportClientsModal from "../Modals/v2/ExportClientsModal/ExportClientsModal";
     import axios from 'axios';
     export default {
         components: {ExportClientsModal, AddClientModal, ImportClientsModal, ParseBalanceModal},
@@ -207,10 +207,10 @@
                 this.showParseBalanceModal = false;
                 showToast('Данные по балансу успешно обновлены!');
             },
-            async onExportSubmit(e) {
+            async onExportSubmit(query) {
                 this.exportClientModal = false;
                 this.overlay = true;
-                const { data } = await axios.get(`/api/export/clients?variant=${e}`);
+                const { data } = await axios.get(`/api/export/clients?${query}`);
                 const link = document.createElement('a');
                 link.href = data;
                 link.click();

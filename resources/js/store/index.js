@@ -21,7 +21,7 @@ const store = new Store({
             dispatch(ACTIONS.GET_CLIENT_TYPES);
             dispatch('getUsers');
             dispatch(ACTIONS.GET_SERVICES);
-            dispatch(ACTIONS.GET_CLIENTS);
+            //dispatch(ACTIONS.GET_CLIENTS);
             dispatch('GET_COMPANIES');
         }
     },

@@ -13,11 +13,11 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return Order[]|\Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        return OrderResource::collection(Order::all()->sortByDesc('created_at'));
+        return OrderResource::collection(Order::with(['service'])->get()->sortByDesc('created_at'));
     }
 
     /**

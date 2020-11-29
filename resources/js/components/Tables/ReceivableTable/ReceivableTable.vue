@@ -20,13 +20,9 @@
                     ></v-progress-circular>
                 </div>
                 <div v-if="clients !== null">
-                    <h3>Общая задолженность: {{total_debt * -1}} тенге</h3>
+                    <h3>Общая задолженность: {{total_debt * -1 | money}}</h3>
                     <v-divider class="mt-4"></v-divider>
                     <v-btn color="primary mt-4" v-if="user.role_id !== 2" @click="exportModal = true">Экспорт данных
-                        <v-icon>mdi-file-excel-box</v-icon>
-                    </v-btn>
-                    <v-btn color="primary mt-4" v-if="user.role_id !== 2" @click="exportModal = true; isMTK = true;">
-                        Экспорт данных МТК
                         <v-icon>mdi-file-excel-box</v-icon>
                     </v-btn>
                     <v-spacer></v-spacer>
@@ -68,7 +64,7 @@
                         </template>
                         <template v-slot:item.debt="{ item }">
                             <ul>
-                                <li v-for="(i, index) of item.connections" :key="index">{{ i.debt}}</li>
+                                <li v-for="(i, index) of item.connections" :key="index">{{ i.debt | money }}</li>
                             </ul>
                         </template>
                         <template v-slot:item._personalAccounts="{ item }">
@@ -85,7 +81,7 @@
         </v-card>
         <ExportDebtsModal
             @cancel="exportModal = false"
-            @submit="exportData"
+            @submit="exportDebts"
             :state="exportModal" />
     </div>
 </template>
@@ -93,7 +89,7 @@
 <script>
     import {getDebts} from "../../../api/client/clientApi";
     import axios from "axios";
-    import ExportDebtsModal from "../../Modals/ExportDebtsModal/ExportDebtsModal";
+    import ExportDebtsModal from "../../Modals/v2/ExportDebtsModal/ExportDebtsModal";
 
     export default {
         components: {ExportDebtsModal},
@@ -108,7 +104,6 @@
             }
         },
         data: () => ({
-            isMTK: false,
             clients: null,
             overlay: false,
             search: '',
@@ -152,7 +147,16 @@
             openInNewTab(e) {
                 this.$router.push({name: 'clients.show', params: {userId: e.id}})
             },
-            async exportData(e) {
+            async exportDebts(queryParams = "") {
+                this.overlay = true;
+                this.exportModal = false;
+                const { data } = await axios.get(`/api/export/debts?${queryParams}`);
+                const link = document.createElement('a');
+                link.href = data;
+                link.click();
+                this.overlay = false;
+            },
+           /* async exportData(e) {
                 this.overlay = true;
                 this.exportModal = false;
                 const getParams = this.isMTK ? '&mtk=1' : '';
@@ -162,7 +166,7 @@
                 link.click();
                 this.overlay = false;
                 this.isMTK = false;
-            }
+            }*/
         }
     }
 </script>

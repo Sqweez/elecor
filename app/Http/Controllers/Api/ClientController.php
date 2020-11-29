@@ -6,6 +6,7 @@ use App\Client;
 use App\ClientType;
 use App\Connection;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Service\DebtService;
 use App\Http\Controllers\Service\PushService;
 use App\Http\Resources\ClientsResource;
 use App\Http\Resources\ConnectionResource;
@@ -29,7 +30,7 @@ class ClientController extends Controller {
      */
     public function index() {
 
-        return ClientsResource::collection(Client::with('type')->get());
+        return ClientsResource::collection(Client::with(['type', 'connections'])->get());
     }
 
     /**
@@ -272,26 +273,20 @@ class ClientController extends Controller {
 
     }
 
-    public function getDebt() {
-        $debts = DebtResource::collection(Client::with(['connections']));
-        $total_debt = 0;
+    public function getDebt(Request $request) {
+        $clientDebts = DebtService::getDebts($request);
 
-        $debts = collect($debts)->filter(function($i) {
-            return $i !== null;
-        })->values();
 
-        $total_debt = collect($debts)->reduce(function ($a, $c) {
-            return $a + collect($c['connections'])->reduce(function ($a, $c) {
-                return $a + $c['debt'];
-            }, 0);
+        $totalClientsDebt = $clientDebts->reduce(function ($client_a, $client_c) {
+            return $client_a + collect($client_c->connections)->reduce(function ($connection_a, $connection_c) {
+                return $connection_a + $connection_c->balance;
+                }, 0);
         }, 0);
 
-        $data = [
-            'debts' => $debts,
-            'total_debt' => $total_debt
+        return [
+            'debts' => DebtResource::collection($clientDebts),
+            'total_debt' => $totalClientsDebt
         ];
-
-        return $data;
 
     }
 
