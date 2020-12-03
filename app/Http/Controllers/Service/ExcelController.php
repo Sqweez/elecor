@@ -49,7 +49,18 @@ class ExcelController extends Controller {
             $balance = $balanceCell->getValue();
             if (intval($account) !== 0) {
                 $connection = $this->findAccount(preg_replace('/\s+/', '', $account));
-                array_push($clients, ['key' => $key, 'account' => $account, 'balance' => $balance, 'client' => $connection['client'], 'id' => $connection['id']]);
+                if ($connection) {
+                    array_push($clients,
+                        [
+                            'key' => $key,
+                            'account' => $account,
+                            'balance' => $balance,
+                            'client' => $connection['client'],
+                            'id' => $connection['id']
+                        ]
+                    );
+                }
+
             }
         }
         return $clients;

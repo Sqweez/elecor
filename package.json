@@ -15,7 +15,7 @@
     "bootstrap-4-grid": "^3.1.1",
     "chart.js": "^2.8.0",
     "izitoast": "^1.4.0",
-    "laravel-mix": "^5.0.0",
+    "laravel-mix": "^5.0.9",
     "moment": "^2.24.0",
     "v-mask": "^2.0.2",
     "vue": "^2.6.10",
@@ -41,6 +41,7 @@
     "sass": "^1.17.4",
     "sass-loader": "^7.1.0",
     "vue-cli-plugin-vuetify": "^1.0.0",
+    "vue-loader": "^15.9.5",
     "vue-template-compiler": "^2.6.10",
     "vuetify-loader": "^1.2.2"
   }

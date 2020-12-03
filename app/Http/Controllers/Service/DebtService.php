@@ -73,17 +73,17 @@ class DebtService {
             $q->whereDate('created_at', '>=', $startDate)->whereDate('created_at', '<=', $finishDate);
         }]);
 
-        $clientsQuery->when($is_all_services, function ($q)  {
-            $q->with(['connections' => function ($query) {
-                $query->where('is_deleted', 0);
-            }]);
-        });
 
-        $clientsQuery->when(!$is_all_services, function ($q) use ($services) {
-            $q->with(['connections' => function ($query) use ($services) {
-                $query->whereIn('service_id', $services)->where('is_deleted', 0);
-            }]);
-        });
+        $clientsQuery->with(['connections' => function ($query) use ($request) {
+            $query->where('is_deleted', 0);
+
+            $services = explode(',', $request->get('services', ""));
+            $is_all_services = !$request->has('services') || count($services) === 0;
+
+            $query->when(!$is_all_services, function ($q) use ($services) {
+                $q->whereIn('service_id', $services);
+            });
+        }]);
 
         $clientsQuery->with(['phones']);
 

@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SingleClientResource extends JsonResource
@@ -22,8 +21,8 @@ class SingleClientResource extends JsonResource
             'comment' => $this->comment,
             'client_type' => intval($this->client_type),
             'photo' => $this->photo,
-            'type' => new ClientTypeResource($this->type),
-            'phones' => PhoneResource::collection($this->phones),
+            'type' => $this->type->type,
+            'phones' => $this->phones->pluck('phone'),
             'connections' => ConnectionResource::collection($this->connections->where('is_deleted', false)->except(['created_at', 'updated_at'])),
             'additional_fields' => json_decode($this->additional_fields, true),
             'gender' => $this->gender,

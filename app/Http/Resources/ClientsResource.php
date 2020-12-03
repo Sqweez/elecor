@@ -20,9 +20,10 @@ class ClientsResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'personal_accounts' => $connections->pluck('personal_account'),
-            'addresses' => $connections->pluck('address'),
-            'trademarks' => $connections->pluck('trademark'),
+            'connections' => $this->connections,
+            '_addresses' => $connections->pluck('address')->join(' '),
+            '_trademarks' => $connections->pluck('trademark')->join(' '),
+            '_personalAccounts' => $connections->pluck('personal_account')->join(' '),
             'client_type' => intval($this->client_type)
         ];
     }

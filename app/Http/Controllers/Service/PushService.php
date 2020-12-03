@@ -20,9 +20,9 @@ class PushService {
 
         $segment = !$token
             ? ['included_segments' => array('All')]
-            : gettype($token) === 'array'
+            : (gettype($token) === 'array'
                 ? ['include_player_ids' => $token]
-                : ['include_player_ids' => [$token]];
+                : ['include_player_ids' => [$token]]);
 
         $key = array_keys($segment)[0];
 
@@ -56,7 +56,6 @@ class PushService {
     }
 
     public static function getToken($id) {
-        $push_token = Client::find($id)['push_token'];
-        return $push_token;
+        return Client::find($id)['push_token'];
     }
 }

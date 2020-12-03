@@ -63,17 +63,17 @@
             >
                 <template v-slot:item.personal_accounts="{ item }">
                     <ul>
-                        <li v-for="(i, index) of item.personal_accounts" :key="index">{{ i }}</li>
+                        <li v-for="(i, index) of item.connections" :key="index">{{ i.personal_account }}</li>
                     </ul>
                 </template>
                 <template v-slot:item.addresses="{ item }">
                     <ul>
-                        <li v-for="(i, index) of item.addresses" :key="index">{{ i }}</li>
+                        <li v-for="(i, index) of item.connections" :key="index">{{ i.address }}</li>
                     </ul>
                 </template>
                 <template v-slot:item.trademarks="{ item }">
                     <ul>
-                        <li v-for="(i, index) of item.trademarks" :key="index">{{ i }}</li>
+                        <li v-for="(i, index) of item.connections" :key="index">{{ i.trademark }}</li>
                     </ul>
                 </template>
                 <template slot="footer.page-text" slot-scope="{pageStart, pageStop, itemsLength}">

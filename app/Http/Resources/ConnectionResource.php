@@ -28,7 +28,7 @@ class ConnectionResource extends JsonResource
             'is_active' => intval($this->is_active),
             'date_start' => $this->date_start,
             'month_price' => $this->month_price,
-            'service_name' => Service::find($this->service_id)->first()['name'],
+            'service_name' => $this->service->name,
             'balance' => $this->transactions->sum('balance_change'),
             'payments' => $this->payments->where('sale_id', false)->where('created_at', '>=', Carbon::today()->startOfMonth()),
             'company' => $this->company,

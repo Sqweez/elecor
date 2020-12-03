@@ -13,8 +13,6 @@ class ClientService {
     public static function getClients(Request $request) {
         $all_client_types = !$request->has('client_types');
         $client_types = explode(',', $request->get('client_types', ''));
-        $debtorRequired = $request->has('is_debtor');
-        $is_debtor = $request->get('is_debtor', 0);
 
         $clientQuery = Client::query()->with(['type', 'connections']);
 
@@ -31,7 +29,7 @@ class ClientService {
         });
 
         $clientQuery->when($request->has('service'), function ($query) use ($request) {
-          return $query->with(['connections' => function ($q) use ($request) {
+            return $query->with(['connections' => function ($q) use ($request) {
                 $q->when($request->has('price'), function ($query) {
                     return $query->where('price', \request('price'));
                 });
@@ -53,14 +51,15 @@ class ClientService {
                 });
 
                 $q->when($request->has('is_debtor'), function ($query) {
-                    $query->withCount(['transactions as debt' => function ($q) {
+                    $query->with('transactions');
+                    /*$query->withCount(['transactions as debt' => function ($q) {
                         return $q->select(DB::raw("SUM(balance_change) as balance"));
                     }]);
 
                     $query->whereHas('transactions', function ($q) {
                         $expression = intval(\request('is_debtor')) === 1 ? '<' : '>=';
                         return $q->having(DB::raw("SUM(balance_change)"), $expression, 0);
-                    });
+                    });*/
                 });
 
                 $q->where('service_id', $request->get('service'));
@@ -69,7 +68,27 @@ class ClientService {
             }]);
         });
 
-        return $clientQuery->get()->filter(function ($client) {
+        $clients = $clientQuery->get();
+        if ($request->has('is_debtor')) {
+            $clients = $clients->map(function ($client) {
+                $connections = collect($client->connections)->map(function ($connection) {
+                    $balance = collect($connection->transactions)->reduce(function ($a, $c) {
+                        return $a + intval($c->balance_change);
+                    }, 0);
+
+                    unset($connection->balance);
+                    unset($connection->transactions);
+                    $connection->balance = $balance;
+                    return $connection;
+                })->filter(function ($connection) {
+                    return intval(\request('is_debtor')) === 1 ? $connection->balance < 0 : $connection->balance >= 0;
+                });
+                unset($client->connections);
+                $client->connections = $connections;
+                return $client;
+            });
+        }
+        return $clients->filter(function ($client) {
             return count($client->connections);
         })->values();
     }

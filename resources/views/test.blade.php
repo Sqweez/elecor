@@ -9,6 +9,9 @@
 </head>
 <body>
 <table>
+    <pre>
+        {{ $client }}
+    </pre>
     <thead>
     <tr>
         <th>Имя</th>

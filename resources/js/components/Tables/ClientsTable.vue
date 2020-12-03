@@ -75,27 +75,27 @@
                 :search="search"
             >
                 <template v-slot:item.personalAccount="{ item }">
-                <span v-if="!item.personal_accounts.length">
+                <span v-if="!item.connections.length">
                     Данные отсутствуют
                 </span>
                     <ul>
-                        <li v-for="(i, index) of item.personal_accounts" :key="index">{{ i }}</li>
+                        <li v-for="(i, index) of item.connections" :key="index">{{ i.personal_account }}</li>
                     </ul>
                 </template>
                 <template v-slot:item.address="{ item }">
-                <span v-if="!item.addresses.length">
+                <span v-if="!item.connections.length">
                     Данные отсутствуют
                 </span>
                     <ul>
-                        <li v-for="(i, index) of item.addresses" :key="index">{{ i }}</li>
+                        <li v-for="(i, index) of item.connections" :key="index">{{ i.address }}</li>
                     </ul>
                 </template>
                 <template v-slot:item.trademark="{ item }">
-                 <span v-if="!item.trademarks.length">
+                 <span v-if="!item.connections.length">
                     Данные отсутствуют
                 </span>
                     <ul>
-                        <li v-for="(i, index) of item.trademarks" :key="index">{{ i }}</li>
+                        <li v-for="(i, index) of item.connections" :key="index">{{ i.trademark }}</li>
                     </ul>
                 </template>
                 <template slot="footer.page-text" slot-scope="{pageStart, pageStop, itemsLength}">

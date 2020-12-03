@@ -30,16 +30,9 @@ class ClientController extends Controller {
      */
     public function index() {
 
-        return ClientsResource::collection(Client::with(['type', 'connections'])->get());
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create() {
-
+        return ClientsResource::collection(Client::with(['type', 'connections' => function ($query) {
+            return $query->where('is_deleted', false);
+        }])->get());
     }
 
     /**
@@ -155,10 +148,6 @@ class ClientController extends Controller {
         }
     }
 
-    public function test() {
-
-    }
-
     public function push(Request $request) {
         $pushMessage = $request->except(['push_token']);
         $isGuest = $request->get('isGuest');
@@ -178,16 +167,10 @@ class ClientController extends Controller {
         return $this->storeMessage($pushMessage);
     }
 
-    public function pushes() {
-
-    }
-
     private function storeMessage($message) {
-       //$mailing_id = $this->getMailingId();
-       $_message = $message;
-       $_message['mailing_id'] = 0;
-       $mailing = Message::create($_message);
-       return $mailing;
+        $_message = $message;
+        $_message['mailing_id'] = 0;
+        return Message::create($_message);
     }
 
     private function getMailingId(): int {
@@ -201,7 +184,7 @@ class ClientController extends Controller {
     }
 
 
-    public function parseClients() {
+    /*public function parseClients() {
         $clientsFile = Storage::disk('public')->get('users.json');
 
         $clientsData = json_decode($clientsFile, true);
@@ -245,48 +228,30 @@ class ClientController extends Controller {
                 $client_id = $client->id;
             }
 
-            $connection = [
-                'client_id' => $client_id,
-                'user_id' => 1,
-                'service_id' => $clientsDatum['service_id'],
-                'address' => $clientsDatum['ulica'] . " " . $clientsDatum['zdanie'],
-                'trademark' => $clientsDatum['trademark'],
-                'personal_account' => $clientsDatum['licshet'],
-                'price' => $clientsDatum['price'],
-                'date_start' => $clientsDatum['date_start']
-            ];
+            $connection = ['client_id' => $client_id, 'user_id' => 1, 'service_id' => $clientsDatum['service_id'], 'address' => $clientsDatum['ulica'] . " " . $clientsDatum['zdanie'], 'trademark' => $clientsDatum['trademark'], 'personal_account' => $clientsDatum['licshet'], 'price' => $clientsDatum['price'], 'date_start' => $clientsDatum['date_start']];
 
             $connection_id = Connection::create($connection)->id;
 
             if ($clientsDatum['balans'] !== 0) {
-                $transaction = [
-                    'connection_id' => $connection_id,
-                    'balance_change' => $clientsDatum['balans'],
-                    'user_id' => 1,
-                    'is_visible' => false
-                ];
+                $transaction = ['connection_id' => $connection_id, 'balance_change' => $clientsDatum['balans'], 'user_id' => 1, 'is_visible' => false];
 
                 Transaction::create($transaction);
 
             }
         }
 
-    }
+    }*/
 
     public function getDebt(Request $request) {
-        $clientDebts = DebtService::getDebts($request);
-
+        $clientDebts = DebtService::getDebtsOld($request);
 
         $totalClientsDebt = $clientDebts->reduce(function ($client_a, $client_c) {
             return $client_a + collect($client_c->connections)->reduce(function ($connection_a, $connection_c) {
-                return $connection_a + $connection_c->balance;
+                    return $connection_a + $connection_c->balance;
                 }, 0);
         }, 0);
 
-        return [
-            'debts' => DebtResource::collection($clientDebts),
-            'total_debt' => $totalClientsDebt
-        ];
+        return ['debts' => DebtResource::collection($clientDebts), 'total_debt' => $totalClientsDebt];
 
     }
 

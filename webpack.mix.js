@@ -6,7 +6,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const devMode = process.env.NODE_ENV !== 'production';
 
 mix.js('resources/js/app.js', 'public/js')
-    .sass('resources/sass/app.scss', 'public/css')
+    .sass('resources/js/styles/app.scss', 'public/css')
     .webpackConfig({
         plugins: [
             new MomentLocalesPlugin(),
@@ -20,6 +20,7 @@ mix.js('resources/js/app.js', 'public/js')
     })
     .options({
         extractVueStyles: false,
+        processCssUrls: false
     });
 
 if (mix.inProduction()) {
