@@ -76,13 +76,13 @@ class ExcelController extends Controller {
         collect($clients)->each(function ($item, $key) use ($sheet) {
             $initialIndex = 3;
             $index = $initialIndex + $key;
-           // dd($item['personal_accounts']);
+            // dd($item['personal_accounts']);
             $sheet->setCellValue('A' . $index, $item['name']);
-            $sheet->setCellValue('B' . $index, join("\n", $item['personal_accounts']->values()->all()));
+            $sheet->setCellValue('B' . $index, collect($item['connections'])->pluck('personal_account')->join("\n")/*join("\n", $item['personal_accounts']->values()->all())*/);
             $sheet->getStyle('B' . $index)->getAlignment()->setWrapText(true);
-            $sheet->setCellValue('C' . $index, join("\n", $item['trademarks']->values()->all()));
+            $sheet->setCellValue('C' . $index, collect($item['connections'])->pluck('trademark')->join("\n"));
             $sheet->getStyle('C' . $index)->getAlignment()->setWrapText(true);
-            $sheet->setCellValue('D' . $index, join("\n", $item['addresses']->values()->all()));
+            $sheet->setCellValue('D' . $index, collect($item['connections'])->pluck('address')->join("\n"));
             $sheet->getStyle('D' . $index)->getAlignment()->setWrapText(true);
         });
 
@@ -99,6 +99,7 @@ class ExcelController extends Controller {
         return url('/') . Storage::url($file);
     }
 
+
     private function loadFile(Request $request, $filename = '') {
         $filePath = $request->has('file') ? $request->get('file') : $filename;
         $path = 'app/public/' . $filePath;
@@ -111,7 +112,7 @@ class ExcelController extends Controller {
         return $account;
     }
 
-	public function exportDebts($debts) {
+    public function exportDebts($debts) {
         $spreadSheet = IOFactory::load(storage_path('app/public/debt_template.xlsx'));
         $sheet = $spreadSheet->getActiveSheet();
         $sheet->setCellValue('A1', "Выгрузка по дебиторской задолженности");
@@ -149,7 +150,7 @@ class ExcelController extends Controller {
 
     }
 
-	private function addBalance($connection, $sum) {
+    private function addBalance($connection, $sum) {
         Transaction::create(['connection_id' => $connection, 'balance_change' => $sum, 'user_id' => 0]);
     }
 }

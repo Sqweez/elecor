@@ -28,6 +28,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereUserId($value)
  * @mixin \Eloquent
+ * @property int $is_bonus
+ * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereIsBonus($value)
  */
 class Transaction extends Model {
     protected $guarded = [];
@@ -39,5 +41,19 @@ class Transaction extends Model {
 
     public function client() {
 
+    }
+
+    public function user() {
+        return $this->belongsTo('App\User')->withDefault([
+            'id' => -1,
+            'name' => 'Система'
+        ]);
+    }
+
+    protected static function boot() {
+        parent::boot();
+        static::creating(function($query) {
+            $query->user_id = $query->user_id ?? -1;
+        });
     }
 }

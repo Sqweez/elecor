@@ -65,4 +65,16 @@ export async function getDebts() {
     return data;
 }
 
+export async function getQRCode(id) {
+    return await axios.get(`/api/v2/referral/${id}/qr`);
+}
+
+export async function getGenders() {
+    return await axios.get('/api/clients/genders');
+}
+
+export async function getLanguages() {
+    return await axios.get('/api/clients/languages');
+}
+
 

@@ -86,8 +86,7 @@ class ConnectionController extends Controller {
     }
 
     public function history(Connection $connection) {
-        $history = new HistoryResource($connection);
-        return $history;
+        return new HistoryResource($connection);
     }
 
     public function findAccount(Request $request) {

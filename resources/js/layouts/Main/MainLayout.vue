@@ -2,6 +2,12 @@
     <div v-if="token">
         <Navbar/>
         <div class="container">
+            <v-overlay :value="isLoading">
+                <v-progress-circular
+                    indeterminate
+                    size="64"
+                    color="danger" />
+            </v-overlay>
             <router-view></router-view>
         </div>
     </div>
@@ -18,6 +24,11 @@
         async created() {
             if (this.$store.getters.isLoggedIn) {
                 await this.$store.dispatch(ACTIONS.INIT);
+            }
+        },
+        computed: {
+            isLoading() {
+                return this.$store.getters.IS_LOADING;
             }
         },
         components: {

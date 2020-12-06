@@ -70,11 +70,11 @@ class ClientController extends Controller {
     /**
      * Display the specified resource.
      *
-     * @param Client $client
+     * @param $client
      * @return SingleClientResource
      */
-    public function show(Client $client) {
-        return new SingleClientResource($client);
+    public function show($client) {
+        return new SingleClientResource(Client::where('id', $client)->with(['phones', 'type', 'connections', 'bonus_transactions', 'bonus_transactions.connection'])->first());
     }
 
     public function deleteTransaction($id) {
@@ -151,13 +151,11 @@ class ClientController extends Controller {
     public function push(Request $request) {
         $pushMessage = $request->except(['push_token']);
         $isGuest = $request->get('isGuest');
-        $push_token = $request->get('push_token');
         $client_id = $request->get('client_id');
-        $pushToken = null;
-        if (!$isGuest) {
-            $pushToken = PushService::getToken($client_id);
-        } else if ($push_token) {
-            $pushToken = $push_token;
+        $pushToken = PushService::getToken($client_id);
+
+        if (!$pushToken) {
+            return response()->json([], 200);
         }
 
         PushService::sendPush($pushMessage, $pushToken);
@@ -253,6 +251,14 @@ class ClientController extends Controller {
 
         return ['debts' => DebtResource::collection($clientDebts), 'total_debt' => $totalClientsDebt];
 
+    }
+
+    public function getLanguages() {
+        return collect(Client::LANGUAGES)->values();
+    }
+
+    public function getGenders() {
+        return collect(Client::GENDERS)->values();
     }
 
     public function clear() {

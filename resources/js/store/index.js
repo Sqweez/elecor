@@ -10,6 +10,8 @@ import stockModule from "./modules/stocks";
 import mobileServiceModule from './modules/mobile_services'
 import userModule from "./modules/user";
 import mailingModule from "./modules/mailing";
+import referralModule from "./modules/referral";
+import frontEndModule from "./modules/frontend";
 Vue.use(Vuex);
 
 const store = new Store({
@@ -19,6 +21,8 @@ const store = new Store({
         [ACTIONS.INIT]({dispatch}) {
             dispatch('getFields');
             dispatch(ACTIONS.GET_CLIENT_TYPES);
+            dispatch('getGenders');
+            dispatch('getLanguages');
             dispatch('getUsers');
             dispatch(ACTIONS.GET_SERVICES);
             //dispatch(ACTIONS.GET_CLIENTS);
@@ -34,7 +38,9 @@ const store = new Store({
         stocksModule: stockModule,
         mobileServiceModule: mobileServiceModule,
         userModule: userModule,
-        mailingModule: mailingModule
+        mailingModule: mailingModule,
+        referralModule: referralModule,
+        frontEndModule: frontEndModule
     }
 });
 

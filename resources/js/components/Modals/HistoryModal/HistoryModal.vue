@@ -1,5 +1,5 @@
 <template>
-    <v-dialog max-width="800" v-model="state" persistent>
+    <v-dialog max-width="1200" v-model="state" persistent>
         <v-card>
             <v-card-title class="headline blue darken-1 justify-content-between">
                 <span class="white--text">История баланса</span>
@@ -63,6 +63,7 @@
                                     <th>Кассир</th>
                                     <th>Сумма</th>
                                     <th>Основание</th>
+                                    <th>Тип</th>
                                     <th>Действие</th>
                                 </tr>
                                 </thead>
@@ -73,11 +74,14 @@
                                         <span v-if="transaction.balance < 0">Списание</span>
                                         <span v-else>Пополнение</span>
                                     </td>
-                                    <td>{{ 'Администратор' }}</td>
+                                    <td>{{ transaction.user }}</td>
                                     <td>{{ transaction.balance | positive }}</td>
                                     <td>
                                         <span v-if="transaction.sale">{{ transaction.sale }}</span>
                                         <span v-else>Абонентская плата</span>
+                                    </td>
+                                    <td>
+                                        {{ transaction.type }}
                                     </td>
                                     <td>
                                         <v-btn icon @click="deleteModal = true; deleteId = transaction.id">
@@ -184,11 +188,6 @@
                 }
 
                 return this.history.transactions;
-            }
-        },
-        filters: {
-            positive(value) {
-                return (value < 0) ? value * -1 : value;
             }
         },
         props: {

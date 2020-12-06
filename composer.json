@@ -9,13 +9,14 @@
     "license": "MIT",
     "require": {
         "php": "^7.2",
+        "ext-openssl": "*",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "^6.0",
         "laravel/tinker": "^1.0",
         "maatwebsite/excel": "^3.1",
         "mobizon/mobizon-php": "^2.0",
         "phpoffice/phpspreadsheet": "^1.9",
-      "ext-openssl": "*"
+        "simplesoftwareio/simple-qrcode": "^4.1"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.5",

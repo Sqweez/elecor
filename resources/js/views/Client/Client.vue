@@ -2,14 +2,14 @@
     <div class="client-container">
         <v-card>
             <v-card-title>
-                <span v-if="!client">Пожалуйста, подождите...</span>
+                <span v-if="loading">Пожалуйста, подождите...</span>
                 <span v-else>Информация о контрагенте</span>
             </v-card-title>
             <v-card-text>
                 <div
                     class="text-center d-flex align-items-center justify-content-center"
                     style="min-height: 500px"
-                    v-if="!client">
+                    v-if="loading">
                     <v-progress-circular
                         indeterminate
                         size="65"
@@ -18,7 +18,7 @@
                 </div>
                 <div v-else>
                     <client-bio
-                        :client="mapClient" :subjects="subjects"
+                        v-if="client"
                         v-on:editToggled="onEdit"
                         v-on:saveToggled="onSave"/>
                     <v-col cols="12">
@@ -218,10 +218,6 @@
     import {sendPushToClient} from "../../api/client/clientApi";
 
     export default {
-        async beforeRouteLeave(to, from, next) {
-            await this.$store.dispatch(ACTIONS.CLEAR_CLIENT);
-            next();
-        },
         components: {
             ClientBio, ConfirmationModal, OneTimeServiceModal, HistoryModal
         },
@@ -240,9 +236,11 @@
                 return output;
             }
         },
-        created() {
+        async created() {
+            this.loading = true;
             const id = this.$route.params.userId;
-            this.$store.dispatch(ACTIONS.GET_CLIENT, id)
+            await this.$store.dispatch(ACTIONS.GET_CLIENT, id);
+            this.loading = false;
         },
         computed: {
             client() {
@@ -260,28 +258,6 @@
             activeFields() {
                 return this.$store.getters.active_fields;
             },
-            mapClient() {
-
-                const client = {...this.client};
-
-                const fields = this.activeFields.map(a => a.alias);
-
-                let client_fields = [];
-
-                if (client.additional_fields) {
-                    client_fields = Object.keys(client.additional_fields);
-                } else {
-                    client.additional_fields = {};
-                }
-
-                fields.forEach((item, index) => {
-                    if (!client_fields.includes(item)) {
-                        client.additional_fields[item] = '';
-                    }
-                });
-
-                return client;
-            }
         },
         data: () => ({
             service_name: '',
@@ -303,6 +279,7 @@
             editMode: false,
             destroy: false,
             message: null,
+            loading: true,
         }),
         methods: {
             showTempServiceModal(item) {

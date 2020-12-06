@@ -4,7 +4,7 @@ import {
     editClient,
     getAllClients,
     getClientById,
-    getClientTypes, getDebts
+    getClientTypes, getDebts, getGenders, getLanguages
 } from "../../api/client/clientApi";
 import ACTIONS from "../actions";
 import MUTATIONS from "../mutations";
@@ -24,26 +24,8 @@ const clientsModule = {
         clients: null,
         client: null,
         debts: [],
-        languages: [
-            {
-                id: 'ru',
-                lang: 'Русский'
-            },
-            {
-                id: 'kz',
-                lang: 'Казахский'
-            }
-        ],
-        genders: [
-            {
-                id: 'M',
-                gender: 'Мужской'
-            },
-            {
-                id: 'F',
-                gender: 'Женский'
-            }
-        ],
+        languages: [],
+        genders: [],
         current_page: 1,
     },
     getters: {
@@ -165,7 +147,13 @@ const clientsModule = {
         },
         setCurrentPage(state, payload) {
             state.current_page = payload;
-        }
+        },
+        setGenders(state, genders) {
+            state.genders = genders;
+        },
+        setLanguages(state, languages) {
+            state.languages = languages;
+        },
     },
     actions: {
         async [ACTIONS.GET_CLIENTS]({commit}) {
@@ -232,7 +220,15 @@ const clientsModule = {
         async getDebts({commit}) {
             const response = await getDebts();
             commit('setDebts', response.debts);
-        }
+        },
+        async getLanguages({commit}) {
+            const { data } = await getLanguages();
+            commit('setLanguages', data);
+        },
+        async getGenders({commit}) {
+            const { data } = await getGenders();
+            commit('setGenders', data);
+        },
     }
 };
 

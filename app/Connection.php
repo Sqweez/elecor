@@ -77,7 +77,10 @@ class Connection extends Model {
     }
 
     public function service() {
-        return $this->belongsTo('App\Service', 'service_id');
+        return $this->belongsTo('App\Service', 'service_id')->withDefault([
+            'id' => -1,
+            'name' => 'Неизвестно'
+        ]);
     }
 
     public function scopeAccount($query, $account = "") {
@@ -87,6 +90,7 @@ class Connection extends Model {
 
     public static function boot() {
         parent::boot();
+
         static::deleting(function ($connection) {
             $connection->payments()->delete();
             $connection->transactions()->delete();

@@ -18,9 +18,11 @@ class TransactionResource extends JsonResource
         return [
             'id' => $this->id,
             'balance' => $this->balance_change,
-            'user_id' => intval($this->user_id),
+            'user_id' => $this->user_id,
+            'user' => $this->user->name,
             'sale' => $sale,
             'created_at' => $this->created_at,
+            'type' => $this->is_bonus ? 'Бонусы' : 'Деньги'
         ];
     }
 }

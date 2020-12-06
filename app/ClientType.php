@@ -22,5 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ClientType extends Model
 {
-
+    const CLIENT_TYPE_PHYSICAL = 1;
+    const CLIENT_TYPE_IND_ENT = 2;
+    const CLIENT_TYPE_ENTITY = 3;
 }

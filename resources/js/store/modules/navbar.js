@@ -63,6 +63,10 @@ const navbarModule = {
                     {
                         title: 'Компании',
                         url: '/companies'
+                    },
+                    {
+                        title: 'Реф. система',
+                        url: '/referral/settings'
                     }
                 ]
             },

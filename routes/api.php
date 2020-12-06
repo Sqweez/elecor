@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\DebugApi;
-
+use App\Http\Controllers\Api\ReferralController;
 Route::middleware([DebugApi::class])->group(function () {
     Route::post('auth', 'Api\UserController@auth');
     Route::get('export/clients', 'Api\ExportController@exportClients');
@@ -27,6 +27,8 @@ Route::middleware([DebugApi::class])->group(function () {
             Route::patch('update/{client}', 'Api\ClientController@updateClient');
             Route::post('push', 'Api\ClientController@push');
             Route::delete('transaction/{transaction}', 'Api\ClientController@deleteTransaction');
+            Route::get('genders', 'Api\ClientController@getGenders');
+            Route::get('languages', 'Api\ClientController@getLanguages');
         });
 
         Route::get('fields', 'Api\FieldController@index');
@@ -93,25 +95,32 @@ Route::middleware([DebugApi::class])->group(function () {
             // URL для реферральной системы Elecor
             Route::prefix('referral')->group(function () {
                 // Получение настроек реферальной системы
-                Route::get('settings', 'Api\ReferralController@getSettings');
+                Route::get('settings', [ReferralController::class, 'getSettings']);
                 // Обновление настроек реферальной системы
-                Route::patch('settings', 'Api\ReferralController@updateSettings');
+                Route::patch('settings', [ReferralController::class, 'updateSettings']);
                 // Проверка реферала, передается GET-параметром ref=[ref], зашифрованный или нет будет зависить от настроек
-                Route::get('validation', 'Api\ReferralController@validateReferral');
+                Route::get('validation', [ReferralController::class, 'validateReferral']);
                 // Получаем откуда бы ни было реферальную ссылку, отправив
-                Route::get('{client_id}/url', 'Api\ReferralController@getReferralUrl');
+                Route::get('{client_id}/url', [ReferralController::class, 'getReferralUrl']);
+                // Получаем откуда бы ни было сообщение с реф ссылкой, отправив
+                Route::get('{client_id}/message', [ReferralController::class, 'getReferralMessage']);
                 // Проверяем промокод с сайта на верность, передаем GET-параметром promocode=[promocode],
-                Route::get('coupon', 'Api\ReferralController@validateCoupon');
+                Route::get('coupon', [ReferralController::class, 'validateCoupon']);
                 // Для получения текущих бонусов у клиента
                 // В случае если type=elecor.kz ищем по лиц счету
                 // В остальных других - по ид клиента
-                Route::get('bonuses/{client}', 'Api\ReferralController@getBonuses');
+                // Обязательно передаем type |elecor.web|elecor.admin|elecor.mobile|
+                Route::get('{client}/bonuses', [ReferralController::class, 'getBonuses']);
                 // Начисление бонусов за успешное подключение реферального клиента
-                Route::post('bonuses/credit', 'Api\ReferralController@creditBonuses');
+                Route::match(['get', 'post'], 'bonuses/credit', [ReferralController::class, 'creditBonuses']);
                 // Списание бонусов, за оплату ими, обналичивание и прочее.
-                Route::post('bonuses/debit', 'Api\ReferralController@debitBonuses');
+                Route::match(['get', 'post'], 'bonuses/debit', [ReferralController::class, 'debitBonuses']);
+                // Общий метод для списания и пополнения бонусов
+                Route::post('bonuses', [ReferralController::class, 'storeBonuses']);
                 // Генерация QR-кода клиента
-                Route::get('{client}/qr', 'Api\ReferralController@getQRCode');
+                Route::get('{client}/qr', [ReferralController::class, 'getQRCode']);
+                // Типы операций с бонусами
+                Route::get('operations/types', [ReferralController::class, 'getOperationTypes']);
             });
         });
 

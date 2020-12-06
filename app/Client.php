@@ -48,6 +48,33 @@ use Illuminate\Database\Eloquent\Model;
 class Client extends Model {
     protected $fillable = ['name', 'client_type', 'birth_date', 'comment', 'photo', 'push_token', 'additional_fields', 'lang', 'gender'];
 
+    protected $casts = [
+        'id' => 'integer',
+        'client_type' => 'integer',
+    ];
+
+    const LANGUAGES = [
+        'ru' => [
+            'id' => 'ru',
+            'lang' => 'Русский'
+        ],
+        'kz' => [
+            'id' => 'kz',
+            'lang' => 'Казахский'
+        ]
+    ];
+
+    const GENDERS = [
+        'M' => [
+            'id' => 'M',
+            'gender' => 'Мужской'
+        ],
+        'F' => [
+            'id' => 'F',
+            'gender' => 'Женский'
+        ],
+    ];
+
     public function type() {
         return $this->belongsTo('App\ClientType', 'client_type');
     }
@@ -65,6 +92,10 @@ class Client extends Model {
 
     public function messages() {
         return $this->hasMany('App\Message', 'client_id');
+    }
+
+    public function bonus_transactions() {
+        return $this->hasMany('App\BonusTransaction', 'client_id', 'id');
     }
 
     public static function boot() {

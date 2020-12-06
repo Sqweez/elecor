@@ -1,6 +1,16 @@
 <template>
     <div>
-        <v-form v-model="valid">
+        <div
+            class="text-center d-flex align-items-center justify-content-center"
+            style="min-height: 500px"
+            v-if="!client">
+            <v-progress-circular
+                indeterminate
+                size="65"
+                color="primary"
+            ></v-progress-circular>
+        </div>
+        <v-form v-else v-model="valid">
             <v-row>
                 <v-col col="4">
                     <div class="d-flex">
@@ -10,7 +20,7 @@
                         <v-select
                             v-if="editMode"
                             v-model="client.client_type"
-                            :items="subjects"
+                            :items="client_types"
                             class="subject__select"
                             item-text="type"
                             item-value="id"></v-select>
@@ -26,7 +36,7 @@
                     <div class="d-flex">
                         <p><span class="font-weight-black">Телефон:</span></p>
                         <p class="ml-2">
-                        <span v-if="!editMode" v-for="(phone, idx) of client.phones" :key="idx">
+                        <span v-if="!editMode" v-for="(phone, idx) of client.phones" :key="`phone-${idx}`">
                             {{ phone }}<br>
                         </span>
                         </p>
@@ -47,17 +57,17 @@
                                 color="primary"
                                 class="ml-2"
                                 v-if="phoneInputs.length > 1"
-                                @click="client.phones.pop()"
+                                @click="removePhoneInput"
                             >
                                 Удалить поле
                                 <v-icon>mdi-delete</v-icon>
                             </v-btn>
                         </div>
                     </div>
-                    <div class="d-flex" v-if="isPhysical">
+                    <div class="d-flex" v-if="client.physical_person">
                         <p><span class="font-weight-black">Пол: </span>
                             <span v-if="!editMode">
-                                {{ genders.find(c => c.id === client.gender).gender }}
+                                {{ client.gender_text }}
                             </span>
                         </p>
                         <v-select
@@ -68,7 +78,15 @@
                             item-text="gender"
                             item-value="id"></v-select>
                     </div>
-                    <div class="d-flex" v-if="isPhysical">
+                    <div class="d-flex" v-if="!editMode">
+                        <p>
+                            <span class="font-weight-black">
+                                Бонусный счет:
+                            </span>
+                            <span>{{ client.bonuses | bonus}}</span>
+                        </p>
+                    </div>
+                    <div class="d-flex" v-if="client.physical_person">
                         <p><span class="font-weight-black">Дата рождения: </span>
                             <span v-if="!editMode">
                                 {{ getDate(client.birth_date) }}
@@ -76,10 +94,10 @@
                         </p>
                         <v-text-field label="Дата рождения" type="date" v-model="client.birth_date" v-if="editMode"/>
                     </div>
-                    <div class="d-flex" v-if="isPhysical">
+                    <div class="d-flex" v-if="client.physical_person">
                         <p><span class="font-weight-black">Язык: </span>
                             <span v-if="!editMode">
-                                {{ languages.find(c => c.id === client.lang).lang }}
+                                {{ client.lang_text }}
                             </span>
                         </p>
                         <v-select
@@ -95,13 +113,6 @@
                             <span v-if="!editMode">{{ client.comment }}</span>
                         </p>
                         <v-textarea v-if="editMode" class="subject__select" v-model="client.comment"
-                                    auto-grow></v-textarea>
-                    </div>
-                    <div class="d-flex" v-for="(value, name, index) of client.additional_fields">
-                        <p><span class="font-weight-black">{{ name }}: </span>
-                            <span v-if="!editMode">{{ value }}</span>
-                        </p>
-                        <v-textarea v-if="editMode" class="subject__select" v-model="addFields[index]"
                                     auto-grow></v-textarea>
                     </div>
                 </v-col>
@@ -144,6 +155,21 @@
                     <div class="button-container" v-if="!editMode && user.role_id !== 2">
                         <v-btn block color="primary" @click="showPushModal">Отправить пуш</v-btn>
                     </div>
+                    <div class="d-flex align-center justify-content-center my-3 mx-auto qr-container">
+                        <v-progress-circular
+                            indeterminate
+                            v-if="!qrCode"
+                            size="65"
+                            color="primary"
+                        ></v-progress-circular>
+                       <span v-html="qrCode" v-else id="qr-code"></span>
+                    </div>
+                    <div class="button-container" v-if="!editMode">
+                        <v-btn block color="primary" @click="printQrCode">Печать</v-btn>
+                    </div>
+                    <div class="button-container" v-if="!editMode">
+                        <v-btn block color="primary" @click="bonusOperationModal = true">Операции с бонусами</v-btn>
+                    </div>
                 </v-col>
                 <message-modal
                     v-if="user.role_id !== 2"
@@ -164,6 +190,10 @@
                     v-on:confirm="deleteClient"
                     :message="`Вы действительно хотите удалить клиента ${client.name}?`"
                 />
+                <BonusOperationsModal
+                    :state="bonusOperationModal"
+                    @close="bonusOperationModal = false"
+                />
             </v-row>
         </v-form>
     </div>
@@ -177,17 +207,22 @@
     import ACTIONS from "../../../store/actions";
     import ConfirmationModal from "../../Modals/ConfirmationModal/ConfirmationModal";
     import showToast from "../../../utils/Toast";
-    import {sendPushToClient} from "../../../api/client/clientApi";
+    import {getQRCode, sendPushToClient} from "../../../api/client/clientApi";
+    import GETTERS from "../../../store/getters";
+    import BonusOperationsModal from "../../Modals/BonusOperations/BonusOperationsModal";
 
     export default {
         components: {
+            BonusOperationsModal,
             MessageModal, ConnectServiceModal, VTextField, ConfirmationModal
         },
-        mounted() {
-            this.addFields = Object.values(this.client.additional_fields);
+        async mounted () {
+            await this.getQr();
+            await this.fillPhones();
         },
         data: () => ({
             connectKey: 0,
+            bonusOperationModal: false,
             dummy: Date.now(),
             deleteModal: false,
             valid: true,
@@ -196,6 +231,8 @@
             editMode: false,
             newPhoto: '',
             addFields: [],
+            qrCode: null,
+            phoneInputs: [],
             nameRules: [
                 v => !!v || 'Требуется ввести контрагента'
             ],
@@ -213,36 +250,28 @@
             languages() {
                 return this.$store.getters.LANGUAGES;
             },
-            phoneInputs() {
-                if (this.client.phones.length === 0) {
-                    return [{component: VTextField}]
-                }
-                let inputs = [];
-                this.client.phones.forEach(_ => {
-                    inputs.push({
-                        component: VTextField,
-                    })
-                });
-                return inputs;
+            client() {
+                return this.$store.getters[GETTERS.CLIENT];
             },
             activeFields() {
                 return this.$store.getters.active_fields;
             },
-            isPhysical() {
-                return +this.client.client_type === 1;
-            }
-        },
-        props: {
-            client: {
-                type: Object,
-                required: true,
-            },
-            subjects: {
-                type: Array,
-                required: true,
+            client_types() {
+                return this.$store.getters[GETTERS.CLIENT_TYPES]
             }
         },
         methods: {
+            async getQr() {
+                const response = await getQRCode(this.client.id);
+                this.qrCode = response.data;
+            },
+            async fillPhones() {
+                this.phoneInputs = this.client.phones.map(c => {
+                    return {
+                        component: VTextField
+                    };
+                });
+            },
             toggleEdit() {
                 this.editMode = true;
                 this.$emit('editToggled', {});
@@ -255,24 +284,15 @@
                 }
             },
             async saveUser() {
-
-                let additional_fields = {...this.addFields};
-
-                Object.keys(additional_fields).forEach((key, index) => {
-                    additional_fields[this.activeFields[index].alias] = additional_fields[index];
-                    delete additional_fields[key];
-                });
-
-                this.client.additional_fields  = JSON.stringify({...additional_fields});
-
                 this.client.phones = this.client.phones
                     .filter(phone => !!phone)
                     .map(phone => phone.replaceAll('-', ''));
-                delete this.client.push_token;
-                this.client = await this.$store.dispatch(ACTIONS.EDIT_CLIENT, {
+                await this.$store.dispatch(ACTIONS.EDIT_CLIENT, {
                     client: this.client,
                     newPhoto: this.newPhoto,
                 });
+                await this.getQr();
+                await this.fillPhones();
                 this.newPhoto = '';
                 this.editMode = false;
                 this.$emit('saveToggled', this.client);
@@ -298,7 +318,6 @@
             },
             editUser() {
                 if (this.editMode) {
-                    this.phoneInputs = [];
                     this.saveUser();
                 } else {
                     this.toggleEdit();
@@ -306,6 +325,11 @@
             },
             addPhoneInput() {
                 this.client.phones.push('');
+                this.phoneInputs.push({component: VTextField})
+            },
+            removePhoneInput() {
+                this.client.phones.pop();
+                this.phoneInputs.pop()
             },
             choosePhoto() {
                 this.$refs.photoInput.click();
@@ -327,11 +351,22 @@
                 showToast('Сообщение отправлено');
             },
             showPushModal() {
-                if (this.client.push_token) {
+                if (this.client.has_push_token) {
                     this.showSendModal = true;
                     return;
                 }
                 showToast('Данный клиент не установил мобильное приложение: отправка пуш-уведомления невозможна', 'Ошибка', 'warning')
+            },
+            printQrCode() {
+                const qrCode = document.querySelector('#qr-code');
+                const printWindow = window.open();
+                printWindow.document.write(`<html><head><title>QR-код - ${this.client.name}</title>`);
+                printWindow.document.write('</head><body>');
+                printWindow.document.write(qrCode.innerHTML);
+                printWindow.document.write('</body></html>');
+                printWindow.print();
+                printWindow.close();
+                return true;
             }
         }
     }
@@ -353,11 +388,15 @@
     }
 
     .button-container {
-        margin: 10px;
+        margin: 10px auto;
         max-width: 300px;
     }
 
     p {
         font-size: 16px;
+    }
+
+    .qr-container {
+        min-height: 230px;
     }
 </style>

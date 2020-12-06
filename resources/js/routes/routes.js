@@ -87,6 +87,11 @@ const routes = [
         path: '/companies',
         name: "Companies",
         component: () => import('../views/Services/Companies/Companies')
+    },
+    {
+        path: '/referral/settings',
+        name: 'Referral',
+        component: () => import('../views/Services/ReferralSettings/ReferralSettings')
     }
 
 ];
