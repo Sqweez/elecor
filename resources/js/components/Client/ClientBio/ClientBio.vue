@@ -155,7 +155,7 @@
                     <div class="button-container" v-if="!editMode && user.role_id !== 2">
                         <v-btn block color="primary" @click="showPushModal">Отправить пуш</v-btn>
                     </div>
-                    <div class="d-flex align-center justify-content-center my-3 mx-auto qr-container" v-if="qrLoading || qrCode">
+                    <div class="d-flex align-center justify-content-center my-3 mx-auto qr-container" v-if="qrLoading === true ||  (qrCode !== null && qrLoading === false)">
                         <v-progress-circular
                             indeterminate
                             v-if="qrLoading"
