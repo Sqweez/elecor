@@ -112,9 +112,7 @@
                 this.amount = Math.max(1, _value);
                 this.amountValue = this.amount;
 
-                console.log(value);
                 if (value.id === 2) {
-                    console.log(123);
                     this.connection_id = this.client.connections[0].id;
                 } else {
                     this.connection_id = -1;

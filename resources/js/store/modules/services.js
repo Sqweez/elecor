@@ -14,7 +14,6 @@ const ServiceModule = {
             return state.services;
         },
         [GETTERS.TEMP_SERVICES]: state => payload => {
-            console.log(payload);
             return state.services.filter(s => s.main_id === payload);
         },
         [GETTERS.NORMAL_SERVICES](state) {

@@ -155,7 +155,7 @@
                     <div class="button-container" v-if="!editMode && user.role_id !== 2">
                         <v-btn block color="primary" @click="showPushModal">Отправить пуш</v-btn>
                     </div>
-                    <div class="d-flex align-center justify-content-center my-3 mx-auto qr-container" v-if="qrLoading === true ||  (qrCode !== null && qrLoading === false)">
+                    <div class="d-flex align-center justify-content-center my-3 mx-auto qr-container" v-if="hasQr">
                         <v-progress-circular
                             indeterminate
                             v-if="qrLoading"
@@ -164,7 +164,7 @@
                         ></v-progress-circular>
                        <span v-html="qrCode" v-if="qrCode" id="qr-code"></span>
                     </div>
-                    <div class="button-container" v-if="!editMode">
+                    <div class="button-container" v-if="!editMode && qrCode">
                         <v-btn block color="primary" @click="printQrCode">Печать</v-btn>
                     </div>
                     <div class="button-container" v-if="!editMode">
@@ -217,8 +217,8 @@
             MessageModal, ConnectServiceModal, VTextField, ConfirmationModal
         },
         async mounted () {
-            await this.getQr();
             await this.fillPhones();
+            await this.getQr();
         },
         data: () => ({
             connectKey: 0,
@@ -232,6 +232,7 @@
             newPhoto: '',
             addFields: [],
             qrCode: null,
+            hasQr: true,
             qrLoading: true,
             phoneInputs: [],
             nameRules: [
@@ -267,7 +268,7 @@
                     const response = await getQRCode(this.client.id);
                     this.qrCode = response.data;
                 } catch (e) {
-
+                    this.hasQr = false;
                 } finally {
                     this.qrLoading = false;
                 }
@@ -354,7 +355,6 @@
                     user_id: 1,
                 };
                 const response = await sendPushToClient(_message);
-                console.log(response);
                 this.showSendModal = false;
                 showToast('Сообщение отправлено');
             },
