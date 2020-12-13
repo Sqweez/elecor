@@ -44,6 +44,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Client wherePushToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Client whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\BonusTransaction[] $bonus_transactions
+ * @property-read int|null $bonus_transactions_count
  */
 class Client extends Model {
     protected $fillable = ['name', 'client_type', 'birth_date', 'comment', 'photo', 'push_token', 'additional_fields', 'lang', 'gender'];

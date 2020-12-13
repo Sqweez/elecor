@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\v2;
 
 use App\Client;
+use App\Company;
 use App\Contact;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Service\PushService;
@@ -30,6 +31,12 @@ class MobileController extends Controller
         $this->sendMessage($phone, $code);
         $client = Client::find($clientPhone['client_id'])->only(['id']);
         return ['code' => $code, 'client_id' => $client['id']];
+    }
+
+    public function getPayboxCompanies(Request $request) {
+        return Company::payable()->select([
+            'id', 'name'
+        ])->get();
     }
 
     public function getClientData(Client $client) {

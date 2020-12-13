@@ -4,6 +4,35 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\BonusTransaction
+ *
+ * @property int $id
+ * @property int $client_id
+ * @property int $amount
+ * @property int $connection_id
+ * @property int $operation_type
+ * @property string|null $comment
+ * @property int $user_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Client $client
+ * @property-read \App\Connection $connection
+ * @property-read \App\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder|BonusTransaction newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BonusTransaction newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BonusTransaction query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BonusTransaction whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonusTransaction whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonusTransaction whereComment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonusTransaction whereConnectionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonusTransaction whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonusTransaction whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonusTransaction whereOperationType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonusTransaction whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonusTransaction whereUserId($value)
+ * @mixin \Eloquent
+ */
 class BonusTransaction extends Model
 {
     const OPERATION_TYPES = [

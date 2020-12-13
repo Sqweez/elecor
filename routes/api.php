@@ -110,6 +110,7 @@ Route::middleware([DebugApi::class])->group(function () {
                 Route::patch('services/{service}', 'Api\v2\MobileController@editService');
                 Route::post('pay', 'Api\v2\MobileController@pay');
                 Route::get('welcome/{client}', 'Api\v2\MobileController@welcome');
+                Route::get('companies', 'Api\v2\MobileController@getPayboxCompanies');
             });
 
             // URL для реферральной системы Elecor

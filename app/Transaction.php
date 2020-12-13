@@ -30,6 +30,8 @@ use Illuminate\Database\Eloquent\Model;
  * @mixin \Eloquent
  * @property int $is_bonus
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereIsBonus($value)
+ * @property-read \App\Connection $connection
+ * @property-read \App\User $user
  */
 class Transaction extends Model {
     protected $guarded = [];

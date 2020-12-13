@@ -22,6 +22,8 @@ use Illuminate\Database\Eloquent\Builder;
  * @method static Builder|ReferralSettings whereId($value)
  * @method static Builder|ReferralSettings whereMessageTemplate($value)
  * @mixin \Eloquent
+ * @property int $cashback
+ * @method static Builder|ReferralSettings whereCashback($value)
  */
 class ReferralSettings extends Model
 {
