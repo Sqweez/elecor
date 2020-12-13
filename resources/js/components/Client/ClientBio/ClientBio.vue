@@ -155,14 +155,14 @@
                     <div class="button-container" v-if="!editMode && user.role_id !== 2">
                         <v-btn block color="primary" @click="showPushModal">Отправить пуш</v-btn>
                     </div>
-                    <div class="d-flex align-center justify-content-center my-3 mx-auto qr-container">
+                    <div class="d-flex align-center justify-content-center my-3 mx-auto qr-container" v-if="qrLoading || qrCode">
                         <v-progress-circular
                             indeterminate
-                            v-if="!qrCode"
+                            v-if="qrLoading"
                             size="65"
                             color="primary"
                         ></v-progress-circular>
-                       <span v-html="qrCode" v-else id="qr-code"></span>
+                       <span v-html="qrCode" v-if="qrCode" id="qr-code"></span>
                     </div>
                     <div class="button-container" v-if="!editMode">
                         <v-btn block color="primary" @click="printQrCode">Печать</v-btn>
@@ -232,6 +232,7 @@
             newPhoto: '',
             addFields: [],
             qrCode: null,
+            qrLoading: true,
             phoneInputs: [],
             nameRules: [
                 v => !!v || 'Требуется ввести контрагента'
@@ -262,8 +263,15 @@
         },
         methods: {
             async getQr() {
-                const response = await getQRCode(this.client.id);
-                this.qrCode = response.data;
+                try {
+                    const response = await getQRCode(this.client.id);
+                    this.qrCode = response.data;
+                } catch (e) {
+
+                } finally {
+                    this.qrLoading = false;
+                }
+
             },
             async fillPhones() {
                 this.phoneInputs = this.client.phones.map(c => {

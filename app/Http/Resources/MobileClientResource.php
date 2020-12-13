@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Transaction;
+use App\Client;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class MobileClientResource extends JsonResource
@@ -11,6 +12,7 @@ class MobileClientResource extends JsonResource
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
+     * @mixin Client
      * @return array
      */
     public function toArray($request)

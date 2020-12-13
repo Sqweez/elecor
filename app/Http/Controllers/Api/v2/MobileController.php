@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\v2;
 
 use App\Client;
 use App\Contact;
@@ -12,11 +12,12 @@ use App\Http\Resources\MobileServicesResource;
 use App\Message;
 use App\MobileService;
 use App\Phone;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Mobizon\MobizonApi;
 
-class MobileController extends Controller {
-
+class MobileController extends Controller
+{
     public function sms(Request $request) {
         $phone = $request->get('phone');
         $clientPhone = Phone::where('phone', $phone)->first();
@@ -32,7 +33,46 @@ class MobileController extends Controller {
     }
 
     public function getClientData(Client $client) {
-        return new MobileClientResource($client);
+        return [
+            'id' => $client->id,
+            'push_token' => $client->push_token,
+            'name' => $client->name,
+            'phone' => $client->phones[0]->phone ?? '',
+            'connections' => $client->connections->where('is_active', 1)->map(function ($connection) {
+                return [
+                    'id' => $connection['id'],
+                    'service_name' => $connection['service']['name'],
+                    'additional' => [
+                        [
+                            'name' => 'Лицевой счет',
+                            'value' => $connection['personal_account'],
+                        ],
+                        [
+                            'name' => 'Баланс',
+                            'value' => intval($connection['transactions']->sum('balance_change'))
+                        ],
+                        [
+                            'name' => 'Договор заключен:',
+                            'value' => $connection['company']['name']
+                        ]
+                    ],
+
+                ];
+            }),
+            'transactions' => $client->transactions
+                ->where('is_visible', true)
+                ->sortByDesc('created_at')
+                ->values()
+                ->map(function ($transaction) {
+                    return [
+                        'id' => $transaction['id'],
+                        'balance' => $transaction['balance_change'],
+                        'date' => Carbon::parse($transaction['created_at'])->format('d.m.Y'),
+                        'personal_account' => $transaction['connection']['personal_account'],
+                        'service_name' => $transaction['connection']['service']['name']
+                    ];
+                }),
+        ];
     }
 
     private function sendMessage($phone, $code) {

@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\DebugApi;
 use App\Http\Controllers\Api\ReferralController;
+use App\Http\Controllers\Api\SyncController;
+
 Route::middleware([DebugApi::class])->group(function () {
     Route::post('auth', 'Api\UserController@auth');
     Route::get('export/clients', 'Api\ExportController@exportClients');
@@ -92,6 +94,24 @@ Route::middleware([DebugApi::class])->group(function () {
 
         // v2 Роуты
         Route::prefix('v2')->group(function () {
+            // URL для мобильного приложения
+
+            Route::prefix('mobile')->group(function () {
+                Route::post('auth', 'Api\v2\MobileController@sms');
+                Route::delete('message/{message}', 'Api\v2\MobileController@deleteMessage');
+                Route::get('client/{client}', 'Api\v2\MobileController@getClientData');
+                Route::get('messages/{client}', 'Api\v2\MobileController@messages');
+                Route::patch('messages/{message}', 'Api\v2\MobileController@updateMessage');
+                Route::patch('contacts/{contact}', 'Api\v2\MobileController@updateContacts');
+                Route::get('contacts', 'Api\v2\MobileController@getContacts');
+                Route::get('services', 'Api\MobileController@getServices');
+                Route::post('services', 'Api\v2\MobileController@createService');
+                Route::delete('services/{service}', 'Api\v2\MobileController@deleteService');
+                Route::patch('services/{service}', 'Api\v2\MobileController@editService');
+                Route::post('pay', 'Api\v2\MobileController@pay');
+                Route::get('welcome/{client}', 'Api\v2\MobileController@welcome');
+            });
+
             // URL для реферральной системы Elecor
             Route::prefix('referral')->group(function () {
                 // Получение настроек реферальной системы
@@ -114,13 +134,18 @@ Route::middleware([DebugApi::class])->group(function () {
                 // Начисление бонусов за успешное подключение реферального клиента
                 Route::match(['get', 'post'], 'bonuses/credit', [ReferralController::class, 'creditBonuses']);
                 // Списание бонусов, за оплату ими, обналичивание и прочее.
-                Route::match(['get', 'post'], 'bonuses/debit', [ReferralController::class, 'debitBonuses']);
+                Route::match(['get','post'], 'bonuses/debit', [ReferralController::class, 'debitBonuses']);
                 // Общий метод для списания и пополнения бонусов
                 Route::post('bonuses', [ReferralController::class, 'storeBonuses']);
                 // Генерация QR-кода клиента
                 Route::get('{client}/qr', [ReferralController::class, 'getQRCode']);
                 // Типы операций с бонусами
                 Route::get('operations/types', [ReferralController::class, 'getOperationTypes']);
+            });
+
+            Route::prefix('sync')->group(function () {
+                Route::get('db', [SyncController::class, 'syncDb']);
+                Route::get('url', [SyncController::class, 'getUrl']);
             });
         });
 

@@ -50,6 +50,10 @@ class Transaction extends Model {
         ]);
     }
 
+    public function connection() {
+        return $this->belongsTo('App\Connection', 'connection_id');
+    }
+
     protected static function boot() {
         parent::boot();
         static::creating(function($query) {

@@ -11,6 +11,7 @@ use App\ReferralSettings;
 use App\Service;
 use App\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -21,6 +22,7 @@ class ReferralController extends Controller
     protected $FROM_MOBILE_APP = 'elecor.mobile';
     protected $FROM_ADMIN = 'elecor.admin';
     protected $QR_CODE_SIZE = 200;
+    protected $PAYBOX_RESULT_OK = 1;
 
     // Получение настроек
     public function getSettings() {
@@ -53,6 +55,7 @@ class ReferralController extends Controller
 
         return response()->json([
             'client_id' => $connection->client_id,
+            'account' => $connection->personal_account,
             'discount' => $settings->discount,
         ], 200);
     }
@@ -189,20 +192,30 @@ class ReferralController extends Controller
         // @TODO зачислеяем бонусы, в транзакцию пишем максимальное количество данных
         // @TODO принимать будем client_id, comment? и какие-нибудь данные с сайта
         // @TODO если можно будет принимать фамилию, имя, отчество будет здорово
+        Log::debug(json_encode($request->all()));
+        $hasResult = $request->has('pg_result');
+        $resultCode = $request->get('pg_result', 0);
+        if ($hasResult && intval($resultCode) !== $this->PAYBOX_RESULT_OK) {
+            Log::debug('Оплата не прошла');
+            return $this->errorResponse('Оплата не прошла!');
+        }
+
         $validator = Validator::make($request->all(), [
-            'client_id' => 'required|numeric',
+            'client_id' => 'required',
         ]);
 
         if ($validator->fails()) {
+            Log::debug('Некорректно переданы данные!');
             return $this->errorResponse('Некорректно переданы данные!');
         }
 
         $client_id = $request->get('client_id');
-        $comment = $request->get('comment');
+        $full_name = $request->get('full_name', '');
 
         $client = Client::find($client_id);
 
         if (!$client) {
+            Log::debug('Клиент не найден!');
             return $this->errorResponse('Клиент не найден!');
         }
 
@@ -212,7 +225,7 @@ class ReferralController extends Controller
             [
                 'client_id' => $client->id,
                 'amount' => $settings->cashback,
-                'comment' => 'Начисление средств по реферральной ссылке ' . $comment
+                'comment' => 'Начисление средств по реферральной ссылке ' . $full_name
             ]
         );
 
@@ -325,7 +338,13 @@ class ReferralController extends Controller
     public function getQRCode($client, Request $request) {
         $qrImageFormat = $request->get('format', 'svg');
         $qrImageSize = $request->get('size', 200);
-        $qrImage = QrCode::format($qrImageFormat)->size($qrImageSize)->generate($this->getReferralUrl($client));
+        $referralUrl = $this->getReferralUrl($client);
+        if (gettype($referralUrl) !== "string") {
+            return response()->json([
+                'message' => 'Невозможно сформировать QR-код!'
+            ], 422);
+        }
+        $qrImage = QrCode::format($qrImageFormat)->size($qrImageSize)->generate($referralUrl);
         return response($qrImage)->header('Content-type', "image/$qrImageFormat");
     }
 
