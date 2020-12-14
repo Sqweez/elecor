@@ -49,6 +49,9 @@ class MobileController extends Controller
                 return [
                     'id' => $connection['id'],
                     'service_name' => $connection['service']['name'],
+                    'personal_account' => $connection['personal_account'],
+                    'balance' => intval($connection['transactions']->sum('balance_change')),
+                    'service_id' => $connection['service_id'],
                     'additional' => [
                         [
                             'name' => 'Лицевой счет',
