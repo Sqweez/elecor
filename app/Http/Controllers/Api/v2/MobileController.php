@@ -68,7 +68,7 @@ class MobileController extends Controller
                     ],
 
                 ];
-            }),
+            })->values()->all(),
             'transactions' => $client->transactions
                 ->where('is_visible', true)
                 ->sortByDesc('created_at')
@@ -168,8 +168,9 @@ class MobileController extends Controller
     }
 
     public function pay(Request $request) {
-        $merchant_id = env('PAYBOX_ID');
-        $secret_word = env('PAYBOX_SECRET_WORD');
+        $company = Company::find($request->get('company'));
+        $merchant_id = $company->paybox_id;
+        $secret_word = $company->paybox_secret_word;
 
         $price = $request->get('price');
         $fullname = $request->get('name');
@@ -189,7 +190,8 @@ class MobileController extends Controller
             'pg_currency' => "KZT",
             'pg_lifetime' => 86400,
             'pg_success_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=success',
-            'pg_failure_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=error'
+            'pg_failure_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=error',
+            'pg_test' => 1,
         );
 
         $arrReq['pg_sig'] = $this->makes('payment.php', $arrReq, $secret_word);

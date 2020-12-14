@@ -142,6 +142,8 @@ Route::middleware([DebugApi::class])->group(function () {
                 Route::get('{client}/qr', [ReferralController::class, 'getQRCode']);
                 // Типы операций с бонусами
                 Route::get('operations/types', [ReferralController::class, 'getOperationTypes']);
+                // Информация о реф системе в моб приложении
+                Route::get('information/mobile', [ReferralController::class, 'getReferralInformationMobile']);
             });
 
             Route::prefix('sync')->group(function () {
