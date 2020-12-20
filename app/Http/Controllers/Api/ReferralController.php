@@ -123,7 +123,11 @@ class ReferralController extends Controller
         ";
     }
 
-    private function createBonusOperation(int $operation_type, int $connection_id, int $user_id, int $client_id, int $amount, string $comment) {
+    public function getQRInformation(){
+        return "Поделитесь QR-кодом, чтобы получить бонусы!";
+    }
+
+    public function createBonusOperation(int $operation_type, int $connection_id, int $user_id, int $client_id, int $amount, string $comment) {
         $operation = [
             'client_id' => $client_id,
             'amount' => $amount,
@@ -148,7 +152,7 @@ class ReferralController extends Controller
         }
     }
 
-    private function credit(array $operation) {
+    public function credit(array $operation) {
         try {
             \DB::beginTransaction();
             $operation['operation_type'] = BonusTransaction::OPERATION_TYPE_CREDIT;
@@ -162,7 +166,7 @@ class ReferralController extends Controller
 
     }
 
-    private function debit(array $operation) {
+    public function debit(array $operation) {
         try {
             \DB::beginTransaction();
             $operation['operation_type'] = BonusTransaction::OPERATION_TYPE_DEBIT;

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api\v2;
 
+use App\BonusTransaction;
 use App\Client;
 use App\Company;
 use App\Contact;
+use App\Http\Controllers\Api\ReferralController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Service\PushService;
 use App\Http\Resources\MessageResource;
@@ -45,6 +47,7 @@ class MobileController extends Controller
             'push_token' => $client->push_token,
             'name' => $client->name,
             'phone' => $client->phones[0]->phone ?? '',
+            'bonuses' => $client->bonuses_sum,
             'connections' => $client->connections->where('is_active', 1)->map(function ($connection) {
                 return [
                     'id' => $connection['id'],
@@ -52,6 +55,7 @@ class MobileController extends Controller
                     'personal_account' => $connection['personal_account'],
                     'balance' => intval($connection['transactions']->sum('balance_change')),
                     'service_id' => $connection['service_id'],
+                    'month_price' => $connection['price'] == 0 ? $connection['service']['price'] : $connection['price'],
                     'additional' => [
                         [
                             'name' => 'Лицевой счет',
@@ -168,21 +172,38 @@ class MobileController extends Controller
     }
 
     public function pay(Request $request) {
+        // @TODO: подумать по бонусам, списывать ли их сразу или нет
         $company = Company::find($request->get('company'));
         $merchant_id = $company->paybox_id;
         $secret_word = $company->paybox_secret_word;
-
-        $price = $request->get('price');
+        $bonuses = intval($request->get('bonuses'));
+        $connection_id = intval($request->get('connection_id'));
+        $price = intval($request->get('price'));
         $fullname = $request->get('name');
         $personal_id = $request->get('personal_id');
         $service_name = $request->get('service');
+        $client_id = $request->get('client_id');
+
+
 
         // описание заказа
         $description = 'Оплата услуги "' . $service_name . '" для ' . $fullname . ' (Лицевой счет: ' . $personal_id . ')';
 
+        if ($bonuses > 0) {
+            $referralController = new ReferralController();
+            $referralController->createBonusOperation(
+                BonusTransaction::OPERATION_TYPE_DEBIT,
+                $connection_id,
+                0,
+                $client_id,
+                $bonuses,
+                $description
+            );
+        }
+
         $arrReq = array(
             'pg_merchant_id' => $merchant_id,
-            'pg_amount' => $price,
+            'pg_amount' => $price - $bonuses,
             'pg_salt' => mt_rand(21, 43433),
             'pg_order_id' => mt_rand(1, 90000),
             'pg_description' => $description,
@@ -192,6 +213,7 @@ class MobileController extends Controller
             'pg_success_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=success',
             'pg_failure_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=error',
             'pg_test' => 1,
+            'bonuses' => $bonuses
         );
 
         $arrReq['pg_sig'] = $this->makes('payment.php', $arrReq, $secret_word);

@@ -100,6 +100,10 @@ class Client extends Model {
         return $this->hasMany('App\BonusTransaction', 'client_id', 'id');
     }
 
+    public function getBonusesSumAttribute() {
+        return $this->bonus_transactions->sum('amount');
+    }
+
     public static function boot() {
         parent::boot();
 

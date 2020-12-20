@@ -144,6 +144,8 @@ Route::middleware([DebugApi::class])->group(function () {
                 Route::get('operations/types', [ReferralController::class, 'getOperationTypes']);
                 // Информация о реф системе в моб приложении
                 Route::get('information/mobile', [ReferralController::class, 'getReferralInformationMobile']);
+                // Информация о QR-коде в моб приложении
+                Route::get('information/qr', [ReferralController::class, 'getQRInformation']);
             });
 
             Route::prefix('sync')->group(function () {
