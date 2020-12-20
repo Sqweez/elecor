@@ -150,6 +150,12 @@ Route::middleware([DebugApi::class])->group(function () {
                 Route::get('information/mobile/payment', [ReferralController::class, 'getPaymentInformation']);
             });
 
+            // Роуты для онлайн-оплаты
+
+            Route::prefix('payments')->group(function() {
+                Route::match(['get', 'post'], 'online/check', [\App\Http\Controllers\Api\v2\PaymentController::class, 'checkOnlinePayment']);
+            });
+
             Route::prefix('sync')->group(function () {
                 Route::get('db', [SyncController::class, 'syncDb']);
                 Route::get('url', [SyncController::class, 'getUrl']);

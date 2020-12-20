@@ -125,8 +125,9 @@ class ReferralController extends Controller
 
     public function getPaymentInformation(){
         return [
-            'max_percent' => 100,
-            'services' => [1, 2, 3, 4, 5, 6],
+            'max_percent' => 95,
+            'services' => [1, 2, 3, /*4,*/ 5, 6],
+            'message' => "Вы можете оплатить до 95% от стоимости услуги бонусами!"
         ];
     }
 

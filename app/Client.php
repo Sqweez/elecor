@@ -46,6 +46,7 @@ use Illuminate\Database\Eloquent\Model;
  * @mixin \Eloquent
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\BonusTransaction[] $bonus_transactions
  * @property-read int|null $bonus_transactions_count
+ * @property-read mixed $bonuses_sum
  */
 class Client extends Model {
     protected $fillable = ['name', 'client_type', 'birth_date', 'comment', 'photo', 'push_token', 'additional_fields', 'lang', 'gender'];

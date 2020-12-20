@@ -14,6 +14,7 @@ use App\Http\Resources\MobileClientResource;
 use App\Http\Resources\MobileServicesResource;
 use App\Message;
 use App\MobileService;
+use App\OnlinePayment;
 use App\Phone;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -185,45 +186,54 @@ class MobileController extends Controller
         $service_name = $request->get('service');
         $client_id = $request->get('client_id');
 
-
+        $bonus_transaction_id = null;
 
         // описание заказа
         $description = 'Оплата услуги "' . $service_name . '" для ' . $fullname . ' (Лицевой счет: ' . $personal_id . ')';
 
         if ($bonuses > 0) {
             $referralController = new ReferralController();
-            $referralController->createBonusOperation(
+            $bonus_transaction_id = $referralController->createBonusOperation(
                 BonusTransaction::OPERATION_TYPE_DEBIT,
                 $connection_id,
                 0,
                 $client_id,
                 $bonuses,
                 $description
-            );
+            )->id;
         }
 
-        $arrReq = array(
+
+        $online_payment_id = OnlinePayment::create([
+            'amount' => $price - $bonuses,
+            'bonuses' => $bonuses,
+            'client_id' => $client_id,
+            'company_id' => $company->id,
+            'connection_id' => $connection_id,
+            'bonus_transaction_id' => $bonus_transaction_id,
+            'description' => $description,
+            'status' => OnlinePayment::STATUS_AWAITING
+        ])->id;
+
+        $arrReq = [
             'pg_merchant_id' => $merchant_id,
             'pg_amount' => $price - $bonuses,
             'pg_salt' => mt_rand(21, 43433),
-            'pg_order_id' => mt_rand(1, 90000),
+            'pg_order_id' => $online_payment_id,
             'pg_description' => $description,
             'pg_encoding' => 'UTF-8',
             'pg_currency' => "KZT",
             'pg_lifetime' => 86400,
-            'pg_success_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=success',
-            'pg_failure_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=error',
+            'pg_result_url' => 'https://' . $_SERVER['SERVER_NAME'] . '/api/v2/payments/online/check',
             'pg_test' => 1,
-            'bonuses' => $bonuses
-        );
+            'online_payment_id' => $online_payment_id
+        ];
 
         $arrReq['pg_sig'] = $this->makes('payment.php', $arrReq, $secret_word);
 
         $query = http_build_query($arrReq);
 
-        $url = 'https://api.paybox.money/payment.php?' . $query;
-
-        return $url;
+        return 'https://api.paybox.money/payment.php?' . $query;
 
     }
 
