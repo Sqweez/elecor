@@ -143,9 +143,11 @@ Route::middleware([DebugApi::class])->group(function () {
                 // Типы операций с бонусами
                 Route::get('operations/types', [ReferralController::class, 'getOperationTypes']);
                 // Информация о реф системе в моб приложении
-                Route::get('information/mobile', [ReferralController::class, 'getReferralInformationMobile']);
+                Route::get('information/mobile/rules', [ReferralController::class, 'getReferralInformationMobile']);
                 // Информация о QR-коде в моб приложении
-                Route::get('information/qr', [ReferralController::class, 'getQRInformation']);
+                Route::get('information/mobile/qr', [ReferralController::class, 'getQRInformation']);
+                // Информация по максимально-возможной оплате бонусами
+                Route::get('information/mobile/payment', [ReferralController::class, 'getPaymentInformation']);
             });
 
             Route::prefix('sync')->group(function () {

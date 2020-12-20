@@ -123,6 +123,13 @@ class ReferralController extends Controller
         ";
     }
 
+    public function getPaymentInformation(){
+        return [
+            'max_percent' => 100,
+            'services' => [1, 2, 3, 4, 5, 6],
+        ];
+    }
+
     public function getQRInformation(){
         return "Поделитесь QR-кодом, чтобы получить бонусы!";
     }

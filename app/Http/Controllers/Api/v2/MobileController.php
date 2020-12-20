@@ -51,6 +51,7 @@ class MobileController extends Controller
             'connections' => $client->connections->where('is_active', 1)->map(function ($connection) {
                 return [
                     'id' => $connection['id'],
+                    'service_id' => intval($connection['service']['id']),
                     'service_name' => $connection['service']['name'],
                     'personal_account' => $connection['personal_account'],
                     'balance' => intval($connection['transactions']->sum('balance_change')),
