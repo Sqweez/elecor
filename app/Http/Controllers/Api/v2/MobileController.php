@@ -186,6 +186,7 @@ class MobileController extends Controller
         $service_name = $request->get('service');
         $client_id = $request->get('client_id');
         $phone = Phone::whereClientId($client_id)->first();
+        $recurring_agree = !!$request->get('recurring_agree', false);
         $bonus_transaction_id = null;
 
         // описание заказа
@@ -234,6 +235,11 @@ class MobileController extends Controller
             'online_payment_id' => $online_payment_id,
             'pg_user_phone' => '+7' . substr($phone->phone, 1)
         ];
+
+        if ($recurring_agree) {
+            $arrReq['pg_recurring_start'] = 1;
+            $arrReq['pg_recurring_lifetime'] = 12;
+        }
 
         $arrReq['pg_sig'] = $this->makes('payment.php', $arrReq, $secret_word);
 

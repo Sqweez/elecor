@@ -27,6 +27,6 @@ class InformationController extends Controller
     }
 
     public function getRecurrentInformation() {
-        return "https://docs.google.com/viewer?url=" . url('/') . \Storage::url('public/documents/recurrent_rules.pdf');
+        return " http://docs.google.com/gview?embedded=true&url=" . url('/') . \Storage::url('public/documents/recurrent_rules.pdf');
     }
 }
