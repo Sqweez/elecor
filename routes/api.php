@@ -111,6 +111,13 @@ Route::middleware([DebugApi::class])->group(function () {
                 Route::post('pay', 'Api\v2\MobileController@pay');
                 Route::get('welcome/{client}', 'Api\v2\MobileController@welcome');
                 Route::get('companies', 'Api\v2\MobileController@getPayboxCompanies');
+
+                Route::prefix('information')->group(function () {
+                    Route::get('referral', 'Api\InformationController@getReferralInformation');
+                    Route::get('qr', 'Api\InformationController@getQRInformation');
+                    Route::get('payment', 'Api\InformationController@getPaymentInformation');
+                    Route::get('recurrent', 'Api\InformationController@getRecurrentInformation');
+                });
             });
 
             // URL для реферральной системы Elecor

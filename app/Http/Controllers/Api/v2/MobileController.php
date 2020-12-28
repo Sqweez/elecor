@@ -185,7 +185,7 @@ class MobileController extends Controller
         $personal_id = $request->get('personal_id');
         $service_name = $request->get('service');
         $client_id = $request->get('client_id');
-
+        $phone = Phone::whereClientId($client_id)->first();
         $bonus_transaction_id = null;
 
         // описание заказа
@@ -203,17 +203,22 @@ class MobileController extends Controller
             )->id;
         }
 
-
-        $online_payment_id = OnlinePayment::create([
+        $onlinePayment = [
             'amount' => $price - $bonuses,
             'bonuses' => $bonuses,
             'client_id' => $client_id,
             'company_id' => $company->id,
             'connection_id' => $connection_id,
-            'bonus_transaction_id' => $bonus_transaction_id,
             'description' => $description,
             'status' => OnlinePayment::STATUS_AWAITING
-        ])->id;
+        ];
+
+        if ($bonus_transaction_id !== null) {
+            $onlinePayment['bonus_transaction_id'] = $bonus_transaction_id;
+        }
+
+
+        $online_payment_id = OnlinePayment::create($onlinePayment)->id;
 
         $arrReq = [
             'pg_merchant_id' => $merchant_id,
@@ -225,8 +230,9 @@ class MobileController extends Controller
             'pg_currency' => "KZT",
             'pg_lifetime' => 86400,
             'pg_result_url' => 'https://' . $_SERVER['SERVER_NAME'] . '/api/v2/payments/online/check',
-            'pg_test' => 1,
-            'online_payment_id' => $online_payment_id
+            'pg_testing_mode' => 1,
+            'online_payment_id' => $online_payment_id,
+            'pg_user_phone' => '+7' . substr($phone->phone, 1)
         ];
 
         $arrReq['pg_sig'] = $this->makes('payment.php', $arrReq, $secret_word);
