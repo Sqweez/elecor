@@ -16,6 +16,7 @@ class PaymentController extends Controller
         $onlinePaymentId = $request->get('online_payment_id');
         $recurringProfileId = $request->get('pg_recurring_profile_id', null);
         $recurringProfileExpiryDate = $request->get('pg_recurring_profile_expiry_date', null);
+
         $onlinePayment = OnlinePayment::find($onlinePaymentId);
         if ($resultCode === self::PAYBOX_OK) {
             $onlinePayment->status = OnlinePayment::STATUS_CONFIRMED;

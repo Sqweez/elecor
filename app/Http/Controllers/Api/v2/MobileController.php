@@ -38,7 +38,7 @@ class MobileController extends Controller
 
     public function getPayboxCompanies(Request $request) {
         return Company::payable()->select([
-            'id', 'name'
+            'id', 'name', 'can_recurr'
         ])->get();
     }
 
@@ -233,12 +233,14 @@ class MobileController extends Controller
             'pg_result_url' => 'https://' . $_SERVER['SERVER_NAME'] . '/api/v2/payments/online/check',
             'pg_testing_mode' => 1,
             'online_payment_id' => $online_payment_id,
-            'pg_user_phone' => '+7' . substr($phone->phone, 1)
+            'pg_user_phone' => '+7' . substr($phone->phone, 1),
+            'client_id' => $client_id
         ];
 
         if ($recurring_agree) {
             $arrReq['pg_recurring_start'] = 1;
-            $arrReq['pg_recurring_lifetime'] = 12;
+            $arrReq['pg_recurring_lifetime'] = 24;
+            $arrReq['pg_user_id'] = $client_id;
         }
 
         $arrReq['pg_sig'] = $this->makes('payment.php', $arrReq, $secret_word);

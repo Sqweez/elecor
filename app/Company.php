@@ -33,7 +33,8 @@ class Company extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'can_pay' => 'boolean'
+        'can_pay' => 'boolean',
+        'can_recurr' => 'boolean'
     ];
 
     public function scopePayable($query) {

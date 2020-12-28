@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RecurrentPayments extends Model
 {
-    protected $fillable = ['connection_id', 'recurring_profile_id', 'recurring_profile_expiry_date'];
+    protected $fillable = ['connection_id', 'recurring_profile_id', 'recurring_profile_expiry_date', 'client_id'];
 
     protected static function boot() {
         parent::boot();
