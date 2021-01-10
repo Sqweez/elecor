@@ -231,7 +231,6 @@ class MobileController extends Controller
             'pg_currency' => "KZT",
             'pg_lifetime' => 86400,
             'pg_result_url' => 'https://' . $_SERVER['SERVER_NAME'] . '/api/v2/payments/online/check',
-            'pg_testing_mode' => 1,
             'online_payment_id' => $online_payment_id,
             'pg_user_phone' => '+7' . substr($phone->phone, 1),
             'client_id' => $client_id

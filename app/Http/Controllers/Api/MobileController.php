@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Client;
+use App\Connection;
 use App\Contact;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Service\PushService;
@@ -11,6 +12,7 @@ use App\Http\Resources\MobileClientResource;
 use App\Http\Resources\MobileServicesResource;
 use App\Message;
 use App\MobileService;
+use App\OnlinePayment;
 use App\Phone;
 use Illuminate\Http\Request;
 use Mobizon\MobizonApi;
@@ -126,8 +128,11 @@ class MobileController extends Controller {
         $personal_id = $request->get('personal_id');
         $service_name = $request->get('service');
 
+        $connection = Connection::where('personal_account', $personal_id)->first();
+
         // описание заказа
         $description = 'Оплата услуги "' . $service_name . '" для ' . $fullname . ' (Лицевой счет: ' . $personal_id . ')';
+
 
         $arrReq = array(
             'pg_merchant_id' => $merchant_id,
@@ -139,8 +144,26 @@ class MobileController extends Controller {
             'pg_currency' => "KZT",
             'pg_lifetime' => 86400,
             'pg_success_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=success',
-            'pg_failure_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=error'
+            'pg_failure_url' => 'http://' . $_SERVER['SERVER_NAME'] . '/?install=error',
         );
+
+        if ($connection) {
+            $onlinePayment = [
+                'amount' => $price,
+                'bonuses' => 0,
+                'client_id' => $connection->client_id,
+                'company_id' => 1,
+                'connection_id' => $connection->id,
+                'description' => $description,
+                'status' => OnlinePayment::STATUS_AWAITING
+            ];
+
+
+            $online_payment_id = OnlinePayment::create($onlinePayment)->id;
+            $arrReq['pg_result_url'] = 'https://' . $_SERVER['SERVER_NAME'] . '/api/v2/payments/online/check';
+            $arrReq['client_id'] = $connection->client_id;
+            $arrReq['pg_order_id'] = $online_payment_id;
+        }
 
         $arrReq['pg_sig'] = $this->makes('payment.php', $arrReq, $secret_word);
 

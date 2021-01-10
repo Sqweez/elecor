@@ -39,7 +39,7 @@ class OnlinePaymentObserver
                 'connection_id' => $onlinePayment->connection_id,
                 'balance_change' => $onlinePayment->amount,
                 'sale_id' => null,
-                'user_id' => -1,
+                'user_id' => 13,
             ]);
         }
     }
