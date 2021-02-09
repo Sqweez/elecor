@@ -41,7 +41,11 @@ class MobileController extends Controller {
 
         $api = new MobizonApi(env('MOBIZON_KEY'), 'api.mobizon.kz');
         $_phone = '7' . substr($phone, 1);
-        $api->call('message', 'sendSMSMessage', array('recipient' => $_phone, 'text' => "Код подтверждения ELECOR: " . $code, 'from' => 'ELECOR'));
+        $api->call('message', 'sendSMSMessage', array(
+            'recipient' => $_phone,
+            'text' => "Код подтверждения ELECOR: " . $code,
+            //'from' => 'ELECOR'
+        ));
         return true;
     }
 
@@ -160,7 +164,7 @@ class MobileController extends Controller {
 
 
             $online_payment_id = OnlinePayment::create($onlinePayment)->id;
-            $arrReq['pg_result_url'] = 'https://' . $_SERVER['SERVER_NAME'] . '/api/v2/payments/online/check';
+            // $arrReq['pg_result_url'] = 'https://' . $_SERVER['SERVER_NAME'] . '/api/v2/payments/online/check';
             $arrReq['client_id'] = $connection->client_id;
             $arrReq['pg_order_id'] = $online_payment_id;
         }

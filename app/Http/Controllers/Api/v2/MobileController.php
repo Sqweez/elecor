@@ -30,16 +30,22 @@ class MobileController extends Controller
         }
 
         $code = mt_rand(1000, 9999);
+        $result = $this->sendMessage($phone, $code);
+        if ($result === true) {
+            $client = Client::find($clientPhone['client_id'])->only(['id']);
+            return ['code' => $code, 'client_id' => $client['id']];
+        };
 
-        $this->sendMessage($phone, $code);
-        $client = Client::find($clientPhone['client_id'])->only(['id']);
-        return ['code' => $code, 'client_id' => $client['id']];
+        return [
+            'error' => 'При отправке SMS произошла ошибка, свяжитесь с менеджером!'
+        ];
+
     }
 
     public function getPayboxCompanies(Request $request) {
         return Company::payable()->select([
             'id', 'name', 'can_recurr'
-        ])->get();
+        ])->orderByDesc('id')->get();
     }
 
     public function getClientData(Client $client) {
@@ -95,8 +101,17 @@ class MobileController extends Controller
 
         $api = new MobizonApi(env('MOBIZON_KEY'), 'api.mobizon.kz');
         $_phone = '7' . substr($phone, 1);
-        $api->call('message', 'sendSMSMessage', array('recipient' => $_phone, 'text' => "Код подтверждения ELECOR: " . $code, 'from' => 'ELECOR'));
-        return true;
+        $result = $api->call('message', 'sendSMSMessage', [
+                'recipient' => $_phone,
+                'text' => "Код подтверждения ELECOR: " . $code,
+                //'from' => 'ELECOR'
+            ]
+        );
+        if ($result) {
+            return true;
+        } else {
+            return $api->getData();
+        }
     }
 
     public function messages(Client $client) {
@@ -230,7 +245,7 @@ class MobileController extends Controller
             'pg_encoding' => 'UTF-8',
             'pg_currency' => "KZT",
             'pg_lifetime' => 86400,
-            'pg_result_url' => 'https://' . $_SERVER['SERVER_NAME'] . '/api/v2/payments/online/check',
+            // 'pg_result_url' => 'https://' . $_SERVER['SERVER_NAME'] . '/api/v2/payments/online/check',
             'online_payment_id' => $online_payment_id,
             'pg_user_phone' => '+7' . substr($phone->phone, 1),
             'client_id' => $client_id

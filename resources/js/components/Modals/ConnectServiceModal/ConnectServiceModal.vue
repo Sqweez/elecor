@@ -152,7 +152,7 @@
                 };
                 await this.sendMessage(message);
                 if (this.connection.month_price > 0) {
-                    message.body = `С Вашего баланса произошло списание ${this.connection.month_price} тг по услуге "${service_name}!"`;
+                    message.body = `Уважаемый абонент! В соответствии с договором, Вам начислена абонентская плата в размере ${this.connection.month_price} тг. Просим Вас оплатить в ближайшее время. Если оплата уже произведена,просим Вас проигнорировать данное сообщение.`;
                     await this.sendMessage(message);
                 }
                 this.$emit('connect');
